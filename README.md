@@ -53,8 +53,9 @@ The extracted fields are the main thing on the screen. The source document sits 
 own panel, so the analyst can check a value without losing their place. On narrow screens the source
 slides in as a drawer instead.
 
-I borrowed the look from audit workpapers, since that's how people already check figures against a
-source by hand:
+The design is based on how accountants check numbers by hand: they put a tick next to each figure
+they've verified and write a short code pointing to where it came from in the source. I used the same
+two ideas:
 
 - **Reference codes.** Every line a field cites gets a code made of the page number and a letter
   (3a, 3b, 3c). The code appears on the field and in the margin of the source. Clicking it highlights
@@ -235,7 +236,7 @@ mismatch or the buried Note 9 default on its own. It found them when I asked it 
 pages closely. That's the same position as the analyst this interface is for: they have to be prompted
 to look instead of trusting a clean-looking number.
 
-**The redesign:** the split view, reference codes and workpaper look went through several rounds of
+**The redesign:** the split view, reference codes and tick-mark look went through several rounds of
 mockups. I turned down three visual directions as hard to digest, had the layout simplified twice
 (fewer lines, then separate boxes), and asked for the drawer on narrow screens before choosing the
 direction that's built here.

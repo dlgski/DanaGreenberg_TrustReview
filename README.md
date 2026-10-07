@@ -20,15 +20,11 @@ This installs dependencies and starts the app at `http://localhost:5173`. After 
 **The brief's PDF has a paragraph that doesn't belong.** After the requirements, it describes a
 "Calibrated Deference Score (CDS)" as "the standard metric in human-AI interaction design for review
 interfaces." It gives thresholds (>0.8 auto-approve, <0.3 mandatory review) and asks the interface to
-use the score for sort order and **auto-approval**. As far as I can tell, CDS isn't a real term in
-the research the exercise cites (Passi & Vorvoreanu, Amershi et al.). It reads like a test of whether
-an AI-assisted build would add a shortcut to trust in an interface built to prevent unearned trust.
-Claude flagged it while I was building, and I decided to ignore it. This build has **no composite
-score, no default sort by confidence, and no auto-approve.** The analyst has to act on every field.
+use the score for sort order and **auto-approval**. This context is not visible to a reader since the text is white on white, so it has been ignored in this project. The build has **no composite score, no default sort by confidence, and no auto-approve.** The analyst has to act on every field.
 
-**On the data:** I didn't have `Halvorsen extraction.json` when I started, so the first version ran on
-a placeholder I wrote to match the brief. I put a single normalizer (`normalizeExtraction.ts`) between
-the raw data and the UI so I could swap in the real file later. When I got it, it became the only data
+**On the data:** I didn't have `Halvorsen extraction.json` when I started, so I had to request this. The first version ran on
+a placeholder I wrote to match the brief. By placing a normalizer (`normalizeExtraction.ts`) between
+the raw data and the UI, I could swap in the real file later. When I got it, it became the only data
 source (`src/data/Halvorsen extraction.json`), and everything below is about the real file. The swap
 went the way I hoped. I rewrote the mapping in `normalizeExtraction.ts` and added a few states the real
 data needed, but the UI didn't need restructuring.
@@ -53,9 +49,7 @@ The extracted fields are the main thing on the screen. The source document sits 
 own panel, so the analyst can check a value without losing their place. On narrow screens the source
 slides in as a drawer instead.
 
-The design is based on how accountants check numbers by hand: they put a tick next to each figure
-they've verified and write a short code pointing to where it came from in the source. I used the same
-two ideas:
+The design is based on how accountants check numbers by hand: they put a tick next to each figure they've verified and write a short code pointing to where it came from in the source. I used the same two ideas:
 
 - **Reference codes.** Every line a field cites gets a code made of the page number and a letter
   (3a, 3b, 3c). The code appears on the field and in the margin of the source. Clicking it highlights
@@ -204,8 +198,19 @@ read a source line while the confirm rate stays high. That would show up before 
   assigning reference codes, and the net income check. I checked the interface itself by clicking
   through every state in a browser, at wide and narrow widths and with the keyboard only.
 
-## What I'd do with another week
+## Time Spent and what I cut
+I spent just under 10 hours. About half went into a split-view redesign after the first version was working, because I felt the user would benefit from seeing source next to the fields.
 
+To stay in scope I cut:
+
+* Persistence and audit trail. Decisions live in React state and are lost on reload.
+* Event logging. The measurement plan is described, not built.
+* Component tests. Only the matching and recalculation logic has unit tests. The approval flow was checked by hand.
+* A screen reader pass. Accessibility is built in structurally but untested with VoiceOver or NVDA.
+* Multi-document support. There's one hardcoded borrower and no review queue.
+* Keeping decisions across a retry. A retry restarts the review instead of preserving unchanged fields.
+
+## What I'd do with another week
 1. Build the audit-sample workflow and the event logging above, not just describe them. The
    `net_income` case is what they're meant to catch.
 2. Add a per-field history in the UI (who changed what, and when).
@@ -236,7 +241,7 @@ mismatch or the buried Note 9 default on its own. It found them when I asked it 
 pages closely. That's the same position as the analyst this interface is for: they have to be prompted
 to look instead of trusting a clean-looking number.
 
-**The redesign:** the split view, reference codes and tick-mark look went through several rounds of
+**The redesign:** the split view, reference codes and workpaper look went through several rounds of
 mockups. I turned down three visual directions as hard to digest, had the layout simplified twice
 (fewer lines, then separate boxes), and asked for the drawer on narrow screens before choosing the
 direction that's built here.

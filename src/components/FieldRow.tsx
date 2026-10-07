@@ -271,6 +271,7 @@ export function FieldRow({
         open={dialogOpen}
         fieldId={field.id}
         fieldLabel={field.label}
+        modelValue={field.value}
         currentValue={displayValue}
         unit={field.unit}
         sourceQuote={field.sourceQuote}

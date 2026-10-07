@@ -163,7 +163,7 @@ function SourcePanelDemo() {
           receivedFieldIds={ALL_FIELD_IDS}
           activeFieldId={active}
           drawerOpen={false}
-          onCloseDrawer={() => {}}
+          onCloseDrawer={() => { }}
         />
       </div>
     </div>
@@ -287,10 +287,10 @@ export function SystemPage() {
           <Button variant="primary" size="large">Approve extraction</Button>
         </div>
         <div className="component-row">
-          <ReferenceButton codes={['3a']} label="Show in source" pressed={false} onClick={() => {}} />
-          <ReferenceButton codes={['3a']} label="Show in source" pressed onClick={() => {}} />
-          <ReferenceButton codes={['4a', '6b']} label="Show both in source" pressed={false} onClick={() => {}} />
-          <ReferenceButton codes={['3b']} label="Show the line on page 3" pressed tone="red" onClick={() => {}} />
+          <ReferenceButton codes={['3a']} label="Show in source" pressed={false} onClick={() => { }} />
+          <ReferenceButton codes={['3a']} label="Show in source" pressed onClick={() => { }} />
+          <ReferenceButton codes={['4a', '6b']} label="Show both in source" pressed={false} onClick={() => { }} />
+          <ReferenceButton codes={['3b']} label="Show the line on page 3" pressed tone="red" onClick={() => { }} />
         </div>
       </section>
 
@@ -312,7 +312,7 @@ export function SystemPage() {
           originalPage={4}
           candidates={[{ value: '24,750', sourceQuote: 'Total debt, including current portion 24,750', page: 6 }]}
           codes={['4a', '6b']}
-          onResolve={() => {}}
+          onResolve={() => { }}
         />
       </section>
 
@@ -468,7 +468,7 @@ export function SystemPage() {
               decisions={['pending', 'pending', 'pending', 'pending']}
               canApprove={false}
               approved={false}
-              onApprove={() => {}}
+              onApprove={() => { }}
             />
           </div>
           <div className="system-page__region">
@@ -482,7 +482,7 @@ export function SystemPage() {
               decisions={['rejected', 'confirmed', 'confirmed', 'edited', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending']}
               canApprove={false}
               approved={false}
-              onApprove={() => {}}
+              onApprove={() => { }}
             />
           </div>
           <div className="system-page__region">
@@ -496,7 +496,7 @@ export function SystemPage() {
               decisions={['confirmed', 'confirmed', 'edited', 'confirmed', 'rejected', 'confirmed', 'edited', 'confirmed', 'confirmed', 'confirmed']}
               canApprove
               approved={false}
-              onApprove={() => {}}
+              onApprove={() => { }}
             />
           </div>
           <div className="system-page__region">
@@ -510,7 +510,7 @@ export function SystemPage() {
               decisions={['confirmed', 'confirmed', 'confirmed', 'confirmed', 'edited', 'edited', 'confirmed', 'confirmed', 'rejected', 'confirmed']}
               canApprove
               approved
-              onApprove={() => {}}
+              onApprove={() => { }}
             />
           </div>
         </div>
@@ -527,6 +527,7 @@ export function SystemPage() {
           open={dialogOpen}
           fieldId="demo-net-sales"
           fieldLabel="Total revenue"
+          modelValue="48,213"
           currentValue="48,213"
           unit="USD"
           sourceQuote="Net sales 48,213"
@@ -541,7 +542,7 @@ export function SystemPage() {
           message="Extraction job lost connection to the document service before finishing."
           receivedCount={6}
           totalCount={10}
-          onRetry={() => {}}
+          onRetry={() => { }}
         />
       </section>
 
@@ -551,7 +552,7 @@ export function SystemPage() {
           title="No extraction in progress"
           description="Run the extraction model against this borrower's financial statements to begin review."
           actionLabel="Run extraction"
-          onAction={() => {}}
+          onAction={() => { }}
         />
       </section>
 

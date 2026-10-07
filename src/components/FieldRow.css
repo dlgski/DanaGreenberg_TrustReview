@@ -1,96 +1,121 @@
 .field-row {
+  display: grid;
+  grid-template-columns: var(--tick-column) minmax(0, 1fr);
+  background: var(--color-card);
+  border: var(--border-mid) solid transparent;
+  border-radius: var(--radius-card);
+}
+
+.field-row--active {
+  border-color: var(--color-pencil-blue);
+}
+
+.field-row__tick {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding-top: var(--space-4);
+  border-right: var(--border-thin) solid var(--color-card-divider);
+}
+
+.field-row__body {
+  min-width: 0;
+  padding: var(--space-3-5) var(--space-4-5) var(--space-3) var(--space-4);
+}
+
+.field-row__line {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border: var(--border-width-thin) solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-}
-
-.field-row--rejected {
-  opacity: 0.7;
-}
-
-.field-row--confirmed,
-.field-row--edited {
-  border-color: var(--color-border-strong);
-}
-
-.field-row__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-4);
 }
 
 .field-row__label {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
 }
 
-.field-row__badges {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+.field-row__figure {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--tracking-snug);
+  line-height: var(--leading-snug);
+  text-align: right;
+  white-space: nowrap;
 }
 
-.field-row__value {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+.field-row__unit {
+  display: block;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0;
+  color: var(--color-graphite-3);
 }
 
-.field-row__value-text {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+.field-row__text {
+  margin-top: var(--space-1);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.field-row__prose {
+  max-width: var(--prose-measure);
+  margin-top: var(--space-1-5);
+  line-height: var(--leading-relaxed);
 }
 
 .field-row__empty {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
+  margin-top: var(--space-1);
   font-style: italic;
+  color: var(--color-graphite-3);
 }
 
 .field-row__original {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-graphite-3);
   text-decoration: line-through;
 }
 
-.field-row__value--prose {
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.field-row__value-prose {
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-relaxed);
-}
-
 .field-row__derived {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  background: var(--color-status-info-bg);
-  border-left: var(--border-width-thick) solid var(--color-status-info-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
+  margin-top: var(--space-1-5);
+  font-size: var(--text-sm);
+  color: var(--color-graphite-2);
 }
 
 .field-row__derived code {
-  font-family: var(--font-family-mono);
-  background: var(--color-surface);
-  padding: 0 var(--space-1);
-  border-radius: var(--radius-sm);
+  font-family: var(--font-doc);
+  color: var(--color-graphite);
+}
+
+.field-row__derived strong {
+  font-weight: var(--weight-semibold);
+  color: var(--color-graphite);
+}
+
+.field-row__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-2-5);
+}
+
+.field-row__no-source {
+  font-size: var(--text-xs);
+  color: var(--color-graphite-3);
 }
 
 .field-row__actions {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-1-5);
+}
+
+.field-row--rejected .field-row__figure,
+.field-row--rejected .field-row__text,
+.field-row--rejected .field-row__prose {
+  color: var(--color-graphite-3);
 }

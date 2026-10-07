@@ -11,6 +11,9 @@ export function isStreamScenario(value: string | null): value is StreamScenario 
 
 const { fields, sourcePages, provenance, figuresInThousands } = normalizeExtraction();
 
+/** Every field in the extraction, whether or not it has streamed in yet. */
+export const allFields = fields;
+
 export { sourcePages, provenance, figuresInThousands };
 export const TOTAL_FIELD_COUNT = fields.length;
 

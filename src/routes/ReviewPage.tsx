@@ -1,16 +1,35 @@
 import { useEffect, useMemo, useState } from 'react';
-import { sourcePages, provenance, figuresInThousands, TOTAL_FIELD_COUNT } from '../lib/streamExtraction';
+import { allFields, sourcePages, provenance, figuresInThousands, TOTAL_FIELD_COUNT } from '../lib/streamExtraction';
 import { isStreamScenario, type StreamScenario } from '../lib/streamExtraction';
 import { useExtractionStream } from '../lib/useExtractionStream';
 import { useFieldReviews } from '../lib/useFieldReviews';
 import type { ExtractionField, FieldReviewState } from '../lib/types';
 import { DocumentHeader } from '../components/DocumentHeader';
+import { assignReferenceCodes, findAllMismatches } from '../lib/sourceMatch';
 import { FieldRow } from '../components/FieldRow';
+import type { DerivedInput } from '../components/FieldRow';
 import { FieldSkeleton } from '../components/FieldSkeleton';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { EmptyState } from '../components/EmptyState';
 import { ScenarioControl } from '../components/ScenarioControl';
 import './ReviewPage.css';
+
+// Codes come from the full extraction, not the fields received so far, so a field's
+// code never changes while the job is still streaming.
+const MISMATCHES = findAllMismatches(allFields, sourcePages);
+const REFERENCES = assignReferenceCodes(allFields, sourcePages, MISMATCHES);
+
+function derivedInputsFor(
+  field: ExtractionField,
+  fields: ExtractionField[],
+  getDecision: (id: string) => FieldReviewState,
+): DerivedInput[] | undefined {
+  if (!field.derived) return undefined;
+  return field.derived.inputLabels.map((label) => {
+    const input = fields.find((f) => f.label === label);
+    return { label, value: input ? effectiveValue(fields, getDecision, input.id) || null : null };
+  });
+}
 
 function readScenarioFromUrl(): StreamScenario {
   const param = new URLSearchParams(window.location.search).get('scenario');
@@ -30,9 +49,11 @@ export function ReviewPage() {
   const { confirm, reject, edit, resolveCandidate, getDecision } = useFieldReviews(attempt);
   const [approved, setApproved] = useState(false);
   const [announcement, setAnnouncement] = useState('');
+  const [activeSourceFieldId, setActiveSourceFieldId] = useState<string | null>(null);
 
   useEffect(() => {
     setApproved(false);
+    setActiveSourceFieldId(null);
   }, [attempt]);
 
   useEffect(() => {
@@ -111,6 +132,12 @@ export function ReviewPage() {
                 key={field.id}
                 field={field}
                 review={getDecision(field.id)}
+                citations={REFERENCES.byField[field.id] ?? []}
+                mismatch={MISMATCHES[field.id] ?? null}
+                derivedInputs={derivedInputsFor(field, fields, getDecision)}
+                figuresInThousands={figuresInThousands}
+                isShowingSource={activeSourceFieldId === field.id}
+                onShowSource={() => setActiveSourceFieldId((current) => (current === field.id ? null : field.id))}
                 onConfirm={() => confirm(field.id)}
                 onReject={() => reject(field.id)}
                 onEdit={(value) => edit(field.id, value)}

@@ -16,6 +16,7 @@ import { ReferenceButton } from '../components/ReferenceButton';
 import { VarianceSchedule } from '../components/VarianceSchedule';
 import { useExtractionStream } from '../lib/useExtractionStream';
 import type { ExtractionField, FieldReviewState } from '../lib/types';
+import type { LabelMismatch, SourceCitation } from '../lib/sourceMatch';
 import type { StreamScenario } from '../lib/streamExtraction';
 import { TOTAL_FIELD_COUNT } from '../lib/streamExtraction';
 import './SystemPage.css';
@@ -66,15 +67,25 @@ function sampleField(overrides: Partial<ExtractionField> = {}): ExtractionField 
 function FieldRowDemo({
   field,
   initialReview,
+  citations = [],
+  mismatch = null,
 }: {
   field: ExtractionField;
   initialReview: FieldReviewState;
+  citations?: SourceCitation[];
+  mismatch?: LabelMismatch | null;
 }) {
   const [review, setReview] = useState<FieldReviewState>(initialReview);
+  const [showing, setShowing] = useState(false);
   return (
     <FieldRow
       field={field}
       review={review}
+      citations={citations}
+      mismatch={mismatch}
+      figuresInThousands
+      isShowingSource={showing}
+      onShowSource={() => setShowing((s) => !s)}
       onConfirm={() => setReview({ decision: 'confirmed', reviewedAt: new Date().toISOString() })}
       onReject={() => setReview({ decision: 'rejected', reviewedAt: new Date().toISOString() })}
       onEdit={(value) => setReview({ decision: 'edited', editedValue: value, reviewedAt: new Date().toISOString() })}
@@ -326,22 +337,35 @@ export function SystemPage() {
           </div>
           <div>
             <p className="state-label">Needs review (pending, default)</p>
-            <FieldRowDemo field={sampleField()} initialReview={{ decision: 'pending' }} />
+            <FieldRowDemo
+              field={sampleField()}
+              initialReview={{ decision: 'pending' }}
+              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
+            />
           </div>
           <div>
             <p className="state-label">Confirmed</p>
-            <FieldRowDemo field={sampleField({ id: 'confirmed' })} initialReview={{ decision: 'confirmed' }} />
+            <FieldRowDemo
+              field={sampleField({ id: 'confirmed' })}
+              initialReview={{ decision: 'confirmed' }}
+              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
+            />
           </div>
           <div>
             <p className="state-label">Edited</p>
             <FieldRowDemo
               field={sampleField({ id: 'edited' })}
               initialReview={{ decision: 'edited', editedValue: '49,800' }}
+              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
             />
           </div>
           <div>
             <p className="state-label">Rejected</p>
-            <FieldRowDemo field={sampleField({ id: 'rejected' })} initialReview={{ decision: 'rejected' }} />
+            <FieldRowDemo
+              field={sampleField({ id: 'rejected' })}
+              initialReview={{ decision: 'rejected' }}
+              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
+            />
           </div>
           <div>
             <p className="state-label">Low confidence flagged</p>
@@ -358,9 +382,18 @@ export function SystemPage() {
             />
           </div>
           <div>
-            <p className="state-label">No source cited (value present, nothing to verify it against)</p>
+            <p className="state-label">Doesn't match the document (uncited value, label found with a different number)</p>
             <FieldRowDemo
               field={sampleField({ id: 'ungrounded', label: 'Net income', value: '2,310', sourceQuote: null, confidence: 0.88 })}
+              initialReview={{ decision: 'pending' }}
+              citations={[{ page: 3, lineIndexes: [10], code: '3b', kind: 'mismatch', option: null }]}
+              mismatch={{ page: 3, lineIndex: 10, documentValue: '1,904', difference: 406, pageTitle: 'Consolidated statement of operations' }}
+            />
+          </div>
+          <div>
+            <p className="state-label">No source cited (no line in the document to compare with)</p>
+            <FieldRowDemo
+              field={sampleField({ id: 'ungrounded-plain', label: 'Interest coverage', value: '3.2', unit: undefined, sourceQuote: null, confidence: 0.8 })}
               initialReview={{ decision: 'pending' }}
             />
           </div>
@@ -396,13 +429,24 @@ export function SystemPage() {
           </div>
           <div>
             <p className="state-label">Conflicting values — unresolved (two legitimate definitions)</p>
-            <FieldRowDemo field={conflictField} initialReview={{ decision: 'pending' }} />
+            <FieldRowDemo
+              field={conflictField}
+              initialReview={{ decision: 'pending' }}
+              citations={[
+                { page: 4, lineIndexes: [8], code: '4a', kind: 'option', option: 1 },
+                { page: 6, lineIndexes: [4], code: '6b', kind: 'option', option: 2 },
+              ]}
+            />
           </div>
           <div>
             <p className="state-label">Conflicting values — resolved by analyst</p>
             <FieldRowDemo
               field={{ ...conflictField, id: 'total-debt-resolved' }}
               initialReview={{ decision: 'edited', editedValue: '24,750', resolvedCandidate: '24,750' }}
+              citations={[
+                { page: 4, lineIndexes: [8], code: '4a', kind: 'option', option: 1 },
+                { page: 6, lineIndexes: [4], code: '6b', kind: 'option', option: 2 },
+              ]}
             />
           </div>
         </div>

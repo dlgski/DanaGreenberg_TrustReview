@@ -234,6 +234,9 @@ export function describeSelection(fieldLabel: string, citations: SourceCitation[
   const missing = citations.find((c) => c.code === null);
   if (missing) return `Couldn't find the quoted text on page ${missing.page}. Showing the whole page.`;
   const codes = citations.map((c) => c.code ?? '');
+  if (codes.length === 1 && citations[0].kind === 'mismatch') {
+    return `Showing line ${codes[0]}, which differs from the extracted ${fieldLabel}.`;
+  }
   if (codes.length === 1) return `Showing line ${codes[0]}, cited for ${fieldLabel}.`;
   return `Showing lines ${joinWithAnd(codes)} for ${fieldLabel}.`;
 }

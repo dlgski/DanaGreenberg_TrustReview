@@ -104,6 +104,10 @@ export function FieldRow({
     ? (derivedInputs ?? field.derived!.inputLabels.map((label) => ({ label, value: null })))
     : [];
 
+  const isSimpleQuotient =
+    isDerived && inputs.length === 2 && /^\s*[A-Za-z_]\w*\s*\/\s*[A-Za-z_]\w*\s*$/.test(field.derived!.formula);
+  const dividedInputs = isSimpleQuotient ? ([inputs[0], inputs[1]] as const) : null;
+
   const classes = ['field-row', `field-row--${review.decision}`, isShowingSource ? 'field-row--active' : null]
     .filter(Boolean)
     .join(' ');
@@ -145,7 +149,14 @@ export function FieldRow({
           isLowConfidence={isLowConfidence}
         />
 
-        {isDerived ? (
+        {isDerived && dividedInputs ? (
+          <p className="field-row__derived">
+            <strong>{dividedInputs[0].label}</strong>
+            {dividedInputs[0].value ? ` ${dividedInputs[0].value}` : ''} divided by{' '}
+            <strong>{dividedInputs[1].label}</strong>
+            {dividedInputs[1].value ? ` ${dividedInputs[1].value}` : ''}. Confirm the math and both inputs.
+          </p>
+        ) : isDerived ? (
           <p className="field-row__derived">
             Calculated as <code>{field.derived!.formula}</code> from{' '}
             {inputs.map((input, i) => (

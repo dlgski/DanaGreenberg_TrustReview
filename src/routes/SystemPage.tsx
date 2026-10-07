@@ -440,6 +440,20 @@ export function SystemPage() {
             />
           </div>
           <div className="system-page__region">
+            <p className="state-label">Complete, every field ticked, ready to approve</p>
+            <DocumentHeader
+              borrowerName="Halvorsen Marine Supply, LLC"
+              periodEnd="2025-06-30"
+              figuresInThousands
+              status="complete"
+              totalCount={10}
+              decisions={['confirmed', 'confirmed', 'edited', 'confirmed', 'rejected', 'confirmed', 'edited', 'confirmed', 'confirmed', 'confirmed']}
+              canApprove
+              approved={false}
+              onApprove={() => {}}
+            />
+          </div>
+          <div className="system-page__region">
             <p className="state-label">Approved</p>
             <DocumentHeader
               borrowerName="Halvorsen Marine Supply, LLC"

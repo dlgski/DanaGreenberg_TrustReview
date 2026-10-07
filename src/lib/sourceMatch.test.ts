@@ -280,6 +280,13 @@ describe('describeSelection', () => {
     );
   });
 
+  it('says a mismatching line differs from the extracted value instead of calling it cited', () => {
+    const mismatch: SourceCitation = { page: 3, lineIndexes: [0], code: '3b', kind: 'mismatch', option: null };
+    expect(describeSelection('Net income', [mismatch])).toBe(
+      'Showing line 3b, which differs from the extracted Net income.',
+    );
+  });
+
   it('handles a field with nothing to show', () => {
     expect(describeSelection('Guarantor', [])).toBe('Nothing to show in the source for Guarantor.');
   });

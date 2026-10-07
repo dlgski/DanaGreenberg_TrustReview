@@ -14,6 +14,7 @@ npm run dev
 
 It opens at `http://localhost:5173`. There's no backend and no environment variables, and nothing to
 build beyond Vite's default. `/` is the review workspace. `/system` shows the tokens and components.
+`npm test` runs the unit tests for the source-matching logic.
 
 ## A flag before anything else
 
@@ -61,10 +62,10 @@ making it automatic.
 | **Edited** | The analyst corrects a value in a native `<dialog>` form. The original value stays visible next to the correction, struck through and labeled "Model extracted: …", so you can always see what changed without opening a history view. |
 | **Rejected** | The analyst decides the field shouldn't go in the memo. It's faded out but not removed, so you can still see that a decision was made. |
 | **Not found** | The model found no value (`guarantor`: `value: null, status: "not_found"`). There's nothing to confirm, so the Confirm button is removed. The analyst can Edit (enter a value) or Reject. It never looks like a real zero or blank. |
-| **No source cited** (not in the brief; the real data needed it, and I think it's the most important row here) | `net_income` has a value (2,310) and a fairly high confidence (0.88), but `source: null`, meaning the model gave a number with no citation. On top of that, page 3 of the document says `"Net income 1,904"`, a different number for the same line. The confidence score gave no warning. Only reading the source text did. Confirming is supposed to mean "I checked this against the source," and you can't do that with no source, so Confirm is removed here too and only Edit or Reject are available. The badge uses the `danger` color, one level above the caution color used for missing and low-confidence flags. |
+| **No source cited / doesn't match the document** (not in the brief; the real data needed it, and I think it's the most important row here) | `net_income` has a value (2,310) and a fairly high confidence (0.88), but `source: null`, meaning the model gave a number with no citation. On top of that, page 3 of the document says `"Net income 1,904"`, a different number for the same line. The confidence score gave no warning. The interface now catches this case with one narrow check (see "What I found in the data"). The field shows a small variance table (2,310, 1,904, difference 406), and the source line is always marked as differing from the extraction. Confirming is supposed to mean "I checked this against the source," and you can't do that with no source, so Confirm is removed here too and only Edit or Reject are available. The badge uses the `danger` color, one level above the caution color used for missing and low-confidence flags. |
 | **Calculated / derived** (not in the brief) | `dscr` (debt service coverage ratio) is calculated, not read from the document (`ebitda / annual_debt_service`), which is why its `source` is `null`. A missing source is expected for a calculated field, so it gets its own badge and its own evidence block showing the formula and the fields it uses. The UI tells the analyst that confirming it means checking the math and the inputs, not matching it to text. |
 | **Low confidence** | `fiscal_year_end` has confidence 0.41 even though its source quote is completely clear ("for the fiscal year ended June 30, 2025"). Confidence and clarity don't line up. This shows as one plain-language flag ("Model was unsure"). The number itself is never shown and never used for sorting. See the CDS note above. |
-| **Narrative / long-form value** (not in the brief) | `covenant_summary` is a paragraph, not a number. It's shown as regular prose instead of the monospace style used for numbers, so it doesn't get skimmed as fast as "$21,500." Its source quote is only the section title ("Note 8 — Debt and Covenants"), not the sentences behind the ratios and waiver date in the value. The full source viewer is the only way to check this one (see below). |
+| **Narrative / long-form value** (not in the brief) | `covenant_summary` is a paragraph, not a number. It's shown as regular prose instead of the monospace style used for numbers, so it doesn't get skimmed as fast as "$21,500." Its source quote is only the section title ("Note 8 — Debt and Covenants"), not the sentences behind the ratios and waiver date in the value. The source panel is the only way to check this one (see below). |
 | **Ready to approve** | Not a separate status. It's true when `status === 'complete'` and every received field has a decision. Until then, "Approve extraction" is a native `<button disabled>` with `aria-describedby` pointing at the reviewed-count readout, so screen readers announce why it's disabled instead of just graying it out. |
 | **Approved** | The end state for this build, since there's no real credit-memo system to hand off to. The button changes to "Approved" and stays disabled. There's no undo, because approving is meant to be a real commitment. |
 
@@ -91,6 +92,16 @@ The tradeoff is that this is slower than a list with one "Approve document" butt
 purpose. As I wrote in Part 1, friction-based fixes wear off as volume goes up and the tool stops
 feeling new. This design doesn't solve that, but it doesn't make it worse from day one either.
 
+## How the source panel works
+
+The source document sits next to the fields on wide screens and slides in as a drawer on narrow ones,
+so the analyst never loses their place in the list. The design borrows from audit workpapers. Every
+line a field cites gets a code made of the page number and a letter (3a, 3b, 3c), shown in the
+margin of the source and on the field. Clicking a field's code highlights that line with a label
+("Cited for Total revenue"), so it never depends on color alone. Each decision leaves a pencil tick
+on the field and in the header's row of ten boxes, which makes it obvious that "Approve extraction"
+is for the whole result.
+
 ## What I found in the data and how the design responded
 
 The real `Halvorsen extraction.json` has ten fields from a six-page audited financial statement, plus
@@ -103,7 +114,11 @@ attached to each field, turned up things the extraction didn't flag:
   had Claude read through `source_pages` in full and cross-check each field, which is what a real
   analyst would do, and why they need the full document next to every field and not just snippets.
   This is the strongest case in the data for the "no source cited means no Confirm button" rule. By
-  every signal the model gave, this wrong value looked like one of the more trustworthy fields.
+  every signal the model gave, this wrong value looked like one of the more trustworthy fields. So I
+  added one narrow check. For a value with no citation only, the app looks for exactly one line that
+  is the field's label followed by a number. If that number differs, the field shows the variance and
+  the line is marked in the source. It never changes the value. On this document it fires once, for
+  net income.
 - **The `dscr` figure uses the more flattering of two EBITDA numbers, and doesn't say so.** `ebitda`
   is extracted as 6,120 (the statement's "Adjusted EBITDA," high confidence, clean citation), and
   `dscr` is calculated correctly as `6120 / 4310 = 1.42`. But page 5 (Note 7) also says: *"EBITDA as
@@ -115,9 +130,9 @@ attached to each field, turned up things the extraction didn't flag:
   brief says the analyst already has that judgment and the interface should "give them what they need
   to apply it." A rule like "two similar numbers in the text might be the same metric" would be
   fragile and overconfident, which is exactly what this project argues against. What the interface
-  does instead: the `ebitda` source evidence links to page 5, and the `dscr` field lists `ebitda` as
-  one of its inputs, so reading one carefully leads you to the other. This is why the full source
-  document is one click from every field.
+  does instead: the `ebitda` reference (3c) highlights a line that itself says "see Note 7," and Note 7
+  is a short scroll away in the same panel. The `dscr` field names EBITDA as one of its inputs, so
+  reading one carefully leads you to the other.
 - **The important part of `covenant_summary` is in a different note than the one it cites.** Its
   source quote is just a section header ("Note 8 — Debt and Covenants"), not the ratios or waiver date
   in the value. The real substance is in Note 9, on the same page, and is never cited: *"In Q4 the
@@ -125,8 +140,8 @@ attached to each field, turned up things the extraction didn't flag:
   default on August 4, 2025."* For a lender, a covenant default and waiver is one of the most
   important sentences in the whole filing, and here it's buried in a long paragraph that's easy to
   skim. That led to two decisions: show this field as prose (not the monospace number style, which
-  invites a glance instead of a read), and make sure jumping to the cited page shows the whole page,
-  including Note 9, not just the quoted line.
+  invites a glance instead of a read), and show the cited line (6a) inside the full page text, so
+  Note 9 sits right below the highlight instead of hidden behind it.
 - **Confidence scores pointed in nearly the wrong direction.** `fiscal_year_end` has a clear quote and
   a value nobody would misread, but its confidence is 0.41, the lowest in the document. `ebitda`,
   which has the ambiguity described above, has confidence 0.97, nearly the highest and well above
@@ -186,16 +201,19 @@ next audit does.
 - **One document, no queue.** There's one hardcoded borrower and no list of documents to review.
 - **No real backend.** Streaming and failure are simulated in the browser with timers. The brief said
   to "simulate however you like," so I kept it simple rather than faking a network layer.
-- **No automatic cross-field or cross-source checks**, on purpose. See the EBITDA/DSCR and net income
-  findings above. The interface shows the evidence (full source text, page citations, inputs for
-  derived fields), but it doesn't try to automatically catch every way two numbers in a financial
-  statement can disagree. That's a deliberate choice, not something left unfinished.
+- **Only one automatic check, on purpose.** The label match for uncited values catches the net income
+  case and nothing else. See the EBITDA/DSCR finding above. The interface shows the evidence (full
+  source text, coded line highlights, inputs for derived fields), but it doesn't try to automatically
+  catch every way two numbers in a financial statement can disagree. That's a deliberate choice, not
+  something left unfinished.
 - **Accessibility was handled structurally but not tested with a screen reader.** It uses labeled
-  native controls, keyboard-accessible `<dialog>` and `<details>`, a live region for streaming, focus
-  management when a dialog reopens (see Part 3, this one had a real bug), and `aria-describedby` on the
-  disabled Approve button. I haven't tested it end to end with a screen reader.
-- **No automated tests.** I checked it by typechecking and by clicking through every state in a
-  browser with Playwright, but there's no committed test suite.
+  native controls, a live region for streaming and for the source panel, highlights that carry a text
+  label as well as color, focus that moves into the drawer and back to the field that opened it,
+  focus management when a dialog reopens (see Part 3, this one had a real bug), and
+  `aria-describedby` on the disabled Approve button. I haven't tested it end to end with a screen reader.
+- **Tests cover the matching logic only.** `npm test` runs unit tests for finding quotes, assigning
+  reference codes and the net income check. The interface itself I checked by clicking through every
+  state in a browser with Playwright.
 
 ## What I'd do with another week
 
@@ -223,6 +241,11 @@ right. The real-data swap taught me something about AI-assisted review. Claude d
 `net_income` mismatch or the buried Note 9 default on its own. It found them when I asked it to read
 `source_pages` closely. That's the same situation as the analyst this interface is for: they have to
 be prompted to look, not trust a clean-looking number.
+
+**The redesign:** the split view, reference codes and workpaper look went through several rounds of
+mockups. I turned down three visual directions as hard to digest, had the layout simplified twice
+(fewer lines, then separate boxes), and asked for the drawer on narrow screens before choosing the
+direction that's built here.
 
 **An AI-generated mistake I caught and fixed:** `EditFieldDialog` uses a native `<dialog>` that stays
 mounted as long as its `FieldRow` does. Only `showModal()` and `close()` toggle it, so editing doesn't

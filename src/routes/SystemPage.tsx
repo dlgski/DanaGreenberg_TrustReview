@@ -1,55 +1,57 @@
 import { useState } from 'react';
-import { Badge, type BadgeVariant } from '../components/Badge';
 import { Button } from '../components/Button';
-import { FieldRow } from '../components/FieldRow';
-import { FieldSkeleton } from '../components/FieldSkeleton';
-import { SourceEvidence } from '../components/SourceEvidence';
-import { ErrorBanner } from '../components/ErrorBanner';
-import { EmptyState } from '../components/EmptyState';
-import { ProgressIndicator } from '../components/ProgressIndicator';
+import { ConflictResolver } from '../components/ConflictResolver';
 import { DocumentHeader } from '../components/DocumentHeader';
 import { EditFieldDialog } from '../components/EditFieldDialog';
-import { ScenarioControl } from '../components/ScenarioControl';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { FieldRow } from '../components/FieldRow';
+import { FieldSkeleton } from '../components/FieldSkeleton';
 import { Flag } from '../components/Flag';
-import { TickMark } from '../components/TickMark';
+import { ProgressIndicator } from '../components/ProgressIndicator';
 import { ReferenceButton } from '../components/ReferenceButton';
+import { ScenarioControl } from '../components/ScenarioControl';
+import { SourcePanel } from '../components/SourcePanel';
+import { TickMark } from '../components/TickMark';
 import { VarianceSchedule } from '../components/VarianceSchedule';
+import { assignReferenceCodes, findAllMismatches, type LabelMismatch, type SourceCitation } from '../lib/sourceMatch';
+import { allFields, provenance, sourcePages, TOTAL_FIELD_COUNT, type StreamScenario } from '../lib/streamExtraction';
+import type { ExtractionField, FieldDecision, FieldReviewState } from '../lib/types';
 import { useExtractionStream } from '../lib/useExtractionStream';
-import type { ExtractionField, FieldReviewState } from '../lib/types';
-import type { LabelMismatch, SourceCitation } from '../lib/sourceMatch';
-import type { StreamScenario } from '../lib/streamExtraction';
-import { TOTAL_FIELD_COUNT } from '../lib/streamExtraction';
 import './SystemPage.css';
 
-const COLOR_PRIMITIVES = [
-  'neutral-0', 'neutral-50', 'neutral-100', 'neutral-200', 'neutral-300',
-  'neutral-400', 'neutral-500', 'neutral-600', 'neutral-700', 'neutral-800', 'neutral-900',
-  'blue-100', 'blue-500', 'blue-600', 'blue-700',
-  'green-100', 'green-500', 'green-700',
-  'amber-100', 'amber-500', 'amber-700',
-  'red-100', 'red-500', 'red-700',
+const COLOR_TOKENS = [
+  'graphite', 'graphite-2', 'graphite-3', 'region', 'card', 'option', 'line', 'input-border',
+  'ledger', 'ledger-line', 'ledger-text', 'ledger-code',
+  'pencil-blue', 'blue-wash', 'pencil-red', 'red-wash', 'red-ink', 'ochre', 'tick-pending',
 ];
 
-const COLOR_SEMANTIC = [
-  'bg', 'surface', 'surface-sunken', 'border', 'border-strong',
-  'text-primary', 'text-secondary', 'text-muted',
-  'interactive', 'interactive-hover', 'interactive-subtle', 'focus-ring',
-  'status-success-bg', 'status-success-text', 'status-success-border',
-  'status-caution-bg', 'status-caution-text', 'status-caution-border',
-  'status-danger-bg', 'status-danger-text', 'status-danger-border',
-  'status-info-bg', 'status-info-text', 'status-info-border',
-  'status-neutral-bg', 'status-neutral-text', 'status-neutral-border',
+const TYPE_TOKENS = ['text-2xs', 'text-xs', 'text-sm', 'text-base', 'text-md', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
+
+const RADIUS_TOKENS = ['radius-region', 'radius-panel', 'radius-card', 'radius-option', 'radius-control', 'radius-code'];
+
+const DECISIONS: FieldDecision[] = ['pending', 'confirmed', 'edited', 'rejected'];
+
+const MISMATCHES = findAllMismatches(allFields, sourcePages);
+const REFERENCES = assignReferenceCodes(allFields, sourcePages, MISMATCHES);
+const FIELD_LABELS = Object.fromEntries(allFields.map((f) => [f.id, f.label]));
+const FIELD_VALUES = Object.fromEntries(allFields.map((f) => [f.id, f.value]));
+const ALL_FIELD_IDS = new Set(allFields.map((f) => f.id));
+const PANEL_DEMO_FIELDS = ['total_revenue', 'total_debt', 'net_income', 'covenant_summary'];
+
+const CITE_3A: SourceCitation[] = [{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }];
+const DEBT_OPTIONS: SourceCitation[] = [
+  { page: 4, lineIndexes: [8], code: '4a', kind: 'option', option: 1 },
+  { page: 6, lineIndexes: [4], code: '6b', kind: 'option', option: 2 },
 ];
-
-const SPACING_TOKENS = ['space-1', 'space-2', 'space-3', 'space-4', 'space-5', 'space-6', 'space-8', 'space-10', 'space-12', 'space-16'];
-
-const TYPE_TOKENS = ['font-size-xs', 'font-size-sm', 'font-size-base', 'font-size-md', 'font-size-lg', 'font-size-xl', 'font-size-2xl'];
-
-const RADIUS_TOKENS = ['radius-sm', 'radius-md', 'radius-lg', 'radius-full'];
-
-const SHADOW_TOKENS = ['shadow-sm', 'shadow-md', 'shadow-lg'];
-
-const BADGE_VARIANTS: BadgeVariant[] = ['neutral', 'success', 'caution', 'danger', 'info'];
+const NET_INCOME_CITATION: SourceCitation[] = [{ page: 3, lineIndexes: [10], code: '3b', kind: 'mismatch', option: null }];
+const NET_INCOME_MISMATCH: LabelMismatch = {
+  page: 3,
+  lineIndex: 10,
+  documentValue: '1,904',
+  difference: 406,
+  pageTitle: 'Consolidated statement of operations',
+};
 
 function sampleField(overrides: Partial<ExtractionField> = {}): ExtractionField {
   return {
@@ -63,6 +65,16 @@ function sampleField(overrides: Partial<ExtractionField> = {}): ExtractionField 
     ...overrides,
   };
 }
+
+const CONFLICT_FIELD = sampleField({
+  id: 'total_debt',
+  label: 'Total debt',
+  value: '21,500',
+  sourceQuote: 'Total long-term debt 21,500',
+  page: 4,
+  confidence: 0.62,
+  candidates: [{ value: '24,750', sourceQuote: 'Total debt, including current portion 24,750', page: 6 }],
+});
 
 function FieldRowDemo({
   field,
@@ -100,6 +112,40 @@ function FieldRowDemo({
   );
 }
 
+function SourcePanelDemo() {
+  const [active, setActive] = useState<string | null>('net_income');
+  return (
+    <div className="component-grid">
+      <div className="component-row">
+        {PANEL_DEMO_FIELDS.map((id) => (
+          <ReferenceButton
+            key={id}
+            codes={(REFERENCES.byField[id] ?? []).flatMap((c) => (c.code ? [c.code] : []))}
+            label={FIELD_LABELS[id]}
+            pressed={active === id}
+            tone={MISMATCHES[id] ? 'red' : 'blue'}
+            onClick={() => setActive((current) => (current === id ? null : id))}
+          />
+        ))}
+      </div>
+      <p className="state-label">On screens 1000px wide and under this panel becomes the drawer, so it is hidden here.</p>
+      <div className="system-page__panel-demo">
+        <SourcePanel
+          pages={sourcePages}
+          provenance={provenance}
+          references={REFERENCES}
+          fieldLabels={FIELD_LABELS}
+          fieldValues={FIELD_VALUES}
+          receivedFieldIds={ALL_FIELD_IDS}
+          activeFieldId={active}
+          drawerOpen={false}
+          onCloseDrawer={() => {}}
+        />
+      </div>
+    </div>
+  );
+}
+
 function LiveStreamDemo() {
   const [scenario, setScenario] = useState<StreamScenario>('success');
   const { status, fields, errorMessage, begin, retry } = useExtractionStream(scenario);
@@ -118,22 +164,12 @@ function LiveStreamDemo() {
         <>
           <ProgressIndicator label="Fields received" value={fields.length} max={TOTAL_FIELD_COUNT} />
           {status === 'failed' && errorMessage ? (
-            <ErrorBanner
-              message={errorMessage}
-              receivedCount={fields.length}
-              totalCount={TOTAL_FIELD_COUNT}
-              onRetry={retry}
-            />
+            <ErrorBanner message={errorMessage} receivedCount={fields.length} totalCount={TOTAL_FIELD_COUNT} onRetry={retry} />
           ) : null}
-          <div className="component-row">
-            {fields.slice(-3).map((f) => (
-              <Badge key={f.id} variant="neutral">
-                {f.label}
-              </Badge>
-            ))}
-            {status === 'streaming' ? <Badge variant="info">receiving…</Badge> : null}
-            {status === 'complete' ? <Badge variant="success">done</Badge> : null}
-          </div>
+          <p className="state-label">
+            Last received: {fields.slice(-3).map((f) => f.label).join(', ') || 'nothing yet'}
+            {status === 'complete' ? '. Done.' : ''}
+          </p>
         </>
       )}
     </div>
@@ -143,114 +179,45 @@ function LiveStreamDemo() {
 export function SystemPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const conflictField = sampleField({
-    id: 'total_debt',
-    label: 'Total debt',
-    value: '21,500',
-    unit: 'USD',
-    sourceQuote: 'Total long-term debt 21,500',
-    page: 4,
-    confidence: 0.62,
-    candidates: [
-      {
-        value: '24,750',
-        sourceQuote: 'Total debt, including current portion 24,750',
-        page: 6,
-      },
-    ],
-  });
-
   return (
     <div className="system-page">
       <div>
-        <h1>Design system</h1>
+        <h1 className="system-page__title">Design system</h1>
         <p className="system-page__intro">
-          Every token and every component this interface is built from, shown in each state it can
-          appear in. Components consume these tokens through <code>var(--token-name)</code> only —
-          no raw hex or pixel values live outside this token layer.
+          The interface borrows from audit workpapers: a pencil tick for every decision, a page-and-letter
+          code tying each figure to its source line, and a variance when the two disagree. Components use
+          these tokens through <code>var(--token-name)</code> only.
         </p>
       </div>
 
       <section className="system-section">
-        <h2 className="system-section__title">Workpaper primitives</h2>
-        <div className="component-row">
-          <TickMark decision="pending" />
-          <TickMark decision="confirmed" />
-          <TickMark decision="edited" />
-          <TickMark decision="rejected" />
-        </div>
-        <div className="component-row">
-          <Flag tone="caution" icon="warning">Model was unsure</Flag>
-          <Flag tone="caution" icon="split">Two possible values</Flag>
-          <Flag tone="danger" icon="warning">Doesn't match the document</Flag>
-          <Flag tone="info" icon="calculator">Calculated, not read from the document</Flag>
-        </div>
-        <div className="component-row">
-          <ReferenceButton codes={['3a']} label="Show in source" pressed={false} onClick={() => {}} />
-          <ReferenceButton codes={['3a']} label="Show in source" pressed onClick={() => {}} />
-          <ReferenceButton codes={['4a', '6b']} label="Show both in source" pressed={false} onClick={() => {}} />
-          <ReferenceButton codes={['3b']} label="Show the line on page 3" pressed tone="red" onClick={() => {}} />
-        </div>
-        <div className="component-row">
-          <Button variant="text">Reject</Button>
-          <Button variant="quiet">Edit</Button>
-          <Button variant="primary">Confirm</Button>
-          <Button variant="primary" size="large" disabled>Approve extraction</Button>
-        </div>
-        <VarianceSchedule
-          fieldLabel="Net income"
-          extractedValue="2,310"
-          documentValue="1,904"
-          documentSource="Consolidated statement of operations, page 3"
-          difference={406}
-          code="3b"
-        />
-      </section>
-
-      <section className="system-section">
         <h2 className="system-section__title">Color</h2>
-        <h3 className="system-section__group-title">Primitives</h3>
         <div className="swatch-grid">
-          {COLOR_PRIMITIVES.map((token) => (
+          {COLOR_TOKENS.map((token) => (
             <div className="swatch" key={token}>
               <div className="swatch__fill" style={{ background: `var(--color-${token})` }} />
               <div className="swatch__label">{token}</div>
             </div>
           ))}
         </div>
-        <h3 className="system-section__group-title">Semantic</h3>
-        <div className="swatch-grid">
-          {COLOR_SEMANTIC.map((token) => (
-            <div className="swatch" key={token}>
-              <div className="swatch__fill" style={{ background: `var(--color-${token})` }} />
-              <div className="swatch__label">{token}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="system-section">
-        <h2 className="system-section__title">Spacing</h2>
-        {SPACING_TOKENS.map((token) => (
-          <div className="scale-row" key={token}>
-            <span className="scale-row__name">{token}</span>
-            <div className="scale-row__box" style={{ width: `var(--${token})`, height: 'var(--space-5)' }} />
-          </div>
-        ))}
       </section>
 
       <section className="system-section">
         <h2 className="system-section__title">Type</h2>
+        <p className="system-page__intro">
+          Libre Franklin for the interface and figures. Courier Prime for the source document and reference codes.
+        </p>
         {TYPE_TOKENS.map((token) => (
           <div className="type-row" key={token}>
             <span className="type-row__name">{token}</span>
-            <span style={{ fontSize: `var(--${token})` }}>Aa — The quick brown fox</span>
+            <span style={{ fontSize: `var(--${token})` }}>Net sales 48,213</span>
           </div>
         ))}
+        <p className="type-row__doc">Adjusted EBITDA (see Note 7) 6,120</p>
       </section>
 
       <section className="system-section">
-        <h2 className="system-section__title">Radius</h2>
+        <h2 className="system-section__title">Radius by level</h2>
         <div className="radius-row">
           {RADIUS_TOKENS.map((token) => (
             <div className="radius-sample" key={token} style={{ borderRadius: `var(--${token})` }}>
@@ -261,137 +228,136 @@ export function SystemPage() {
       </section>
 
       <section className="system-section">
-        <h2 className="system-section__title">Elevation</h2>
-        <div className="shadow-row">
-          {SHADOW_TOKENS.map((token) => (
-            <div className="shadow-sample" key={token} style={{ boxShadow: `var(--${token})` }}>
-              {token}
+        <h2 className="system-section__title">Tick marks</h2>
+        <div className="component-row">
+          {DECISIONS.map((d) => (
+            <div className="tick-sample" key={d}>
+              <TickMark decision={d} />
+              <span className="state-label">{d}</span>
             </div>
           ))}
         </div>
       </section>
 
       <section className="system-section">
-        <h2 className="system-section__title">Button</h2>
+        <h2 className="system-section__title">Flags</h2>
         <div className="component-row">
-          <Button variant="primary">Primary</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="danger">Danger</Button>
-          <Button variant="ghost">Ghost</Button>
-          <Button variant="primary" disabled>
-            Primary disabled
-          </Button>
+          <Flag tone="danger" icon="warning">Doesn't match the document</Flag>
+          <Flag tone="danger" icon="warning">No source cited</Flag>
+          <Flag tone="caution" icon="split">Two possible values</Flag>
+          <Flag tone="caution" icon="warning">Not found</Flag>
+          <Flag tone="info" icon="calculator">Calculated, not read from the document</Flag>
+          <Flag tone="caution" icon="warning">Model was unsure</Flag>
         </div>
       </section>
 
       <section className="system-section">
-        <h2 className="system-section__title">Badge</h2>
+        <h2 className="system-section__title">Buttons and references</h2>
         <div className="component-row">
-          {BADGE_VARIANTS.map((v) => (
-            <Badge key={v} variant={v}>
-              {v}
-            </Badge>
-          ))}
+          <Button variant="text">Reject</Button>
+          <Button variant="quiet">Edit</Button>
+          <Button variant="primary">Confirm</Button>
+          <Button variant="primary" disabled>Confirmed</Button>
+          <Button variant="primary" size="large">Approve extraction</Button>
+        </div>
+        <div className="component-row">
+          <ReferenceButton codes={['3a']} label="Show in source" pressed={false} onClick={() => {}} />
+          <ReferenceButton codes={['3a']} label="Show in source" pressed onClick={() => {}} />
+          <ReferenceButton codes={['4a', '6b']} label="Show both in source" pressed={false} onClick={() => {}} />
+          <ReferenceButton codes={['3b']} label="Show the line on page 3" pressed tone="red" onClick={() => {}} />
         </div>
       </section>
 
       <section className="system-section">
-        <h2 className="system-section__title">Progress indicator</h2>
-        <div className="component-grid">
-          <ProgressIndicator label="Fields received" value={6} max={9} />
-          <ProgressIndicator label="Fields reviewed" value={9} max={9} />
-        </div>
+        <h2 className="system-section__title">Variance and conflict options</h2>
+        <VarianceSchedule
+          fieldLabel="Net income"
+          extractedValue="2,310"
+          documentValue="1,904"
+          documentSource="Consolidated statement of operations, page 3"
+          difference={406}
+          code="3b"
+        />
+        <ConflictResolver
+          fieldId="demo-debt"
+          fieldLabel="Total debt"
+          originalValue="21,500"
+          originalQuote="Total long-term debt 21,500"
+          originalPage={4}
+          candidates={[{ value: '24,750', sourceQuote: 'Total debt, including current portion 24,750', page: 6 }]}
+          codes={['4a', '6b']}
+          onResolve={() => {}}
+        />
       </section>
 
       <section className="system-section">
-        <h2 className="system-section__title">Source evidence</h2>
-        <div className="component-grid">
+        <h2 className="system-section__title">Field card, every state</h2>
+        <div className="component-grid component-grid--cards">
           <div>
-            <p className="state-label">With a matching quote and page citation</p>
-            <SourceEvidence quote="Net sales 48,213" page={3} />
-          </div>
-          <div>
-            <p className="state-label">No value was found in the document</p>
-            <SourceEvidence quote={null} />
-          </div>
-          <div>
-            <p className="state-label">A value exists but the model cited no source for it</p>
-            <SourceEvidence quote={null} missingMessage="The model did not cite any source for this value." />
-          </div>
-        </div>
-      </section>
-
-      <section className="system-section">
-        <h2 className="system-section__title">Field row — every state</h2>
-        <div className="component-grid">
-          <div>
-            <p className="state-label">Loading (skeleton)</p>
+            <p className="state-label">Loading</p>
             <FieldSkeleton />
           </div>
           <div>
-            <p className="state-label">Needs review (pending, default)</p>
-            <FieldRowDemo
-              field={sampleField()}
-              initialReview={{ decision: 'pending' }}
-              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
-            />
+            <p className="state-label">Not reviewed</p>
+            <FieldRowDemo field={sampleField()} initialReview={{ decision: 'pending' }} citations={CITE_3A} />
           </div>
           <div>
             <p className="state-label">Confirmed</p>
-            <FieldRowDemo
-              field={sampleField({ id: 'confirmed' })}
-              initialReview={{ decision: 'confirmed' }}
-              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
-            />
+            <FieldRowDemo field={sampleField({ id: 'confirmed' })} initialReview={{ decision: 'confirmed' }} citations={CITE_3A} />
           </div>
           <div>
             <p className="state-label">Edited</p>
             <FieldRowDemo
               field={sampleField({ id: 'edited' })}
               initialReview={{ decision: 'edited', editedValue: '49,800' }}
-              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
+              citations={CITE_3A}
             />
           </div>
           <div>
             <p className="state-label">Rejected</p>
+            <FieldRowDemo field={sampleField({ id: 'rejected' })} initialReview={{ decision: 'rejected' }} citations={CITE_3A} />
+          </div>
+          <div>
+            <p className="state-label">Short text value</p>
             <FieldRowDemo
-              field={sampleField({ id: 'rejected' })}
-              initialReview={{ decision: 'rejected' }}
-              citations={[{ page: 3, lineIndexes: [2], code: '3a', kind: 'cite', option: null }]}
+              field={sampleField({ id: 'name', label: 'Borrower legal name', value: 'Halvorsen Marine Supply, LLC', unit: undefined, sourceQuote: 'Halvorsen Marine Supply, LLC and Subsidiary', page: 1 })}
+              initialReview={{ decision: 'pending' }}
+              citations={[{ page: 1, lineIndexes: [0], code: '1a', kind: 'cite', option: null }]}
             />
           </div>
           <div>
-            <p className="state-label">Low confidence flagged</p>
+            <p className="state-label">Model was unsure</p>
             <FieldRowDemo
-              field={sampleField({ id: 'low-confidence', label: 'Fiscal year end', value: '2025-06-30', unit: undefined, sourceQuote: 'for the fiscal year ended June 30, 2025', confidence: 0.41 })}
+              field={sampleField({ id: 'low-confidence', label: 'Fiscal year end', value: '2025-06-30', unit: undefined, sourceQuote: 'for the fiscal year ended June 30, 2025', page: 1, confidence: 0.41 })}
+              initialReview={{ decision: 'pending' }}
+              citations={[{ page: 1, lineIndexes: [2], code: '1b', kind: 'cite', option: null }]}
+            />
+          </div>
+          <div>
+            <p className="state-label">Not found</p>
+            <FieldRowDemo
+              field={sampleField({ id: 'missing', label: 'Guarantor', value: '', unit: undefined, sourceQuote: null, page: undefined, confidence: null, status: 'not_found' })}
               initialReview={{ decision: 'pending' }}
             />
           </div>
           <div>
-            <p className="state-label">Not found in document</p>
+            <p className="state-label">Doesn't match the document</p>
             <FieldRowDemo
-              field={sampleField({ id: 'missing', label: 'Guarantor', value: '', unit: undefined, sourceQuote: null, confidence: null, status: 'not_found' })}
+              field={sampleField({ id: 'net-income', label: 'Net income', value: '2,310', sourceQuote: null, page: undefined, confidence: 0.88 })}
+              initialReview={{ decision: 'pending' }}
+              citations={NET_INCOME_CITATION}
+              mismatch={NET_INCOME_MISMATCH}
+            />
+          </div>
+          <div>
+            <p className="state-label">No source cited, nothing to compare with</p>
+            <FieldRowDemo
+              field={sampleField({ id: 'ungrounded', label: 'Interest coverage', value: '3.2', unit: undefined, sourceQuote: null, page: undefined, confidence: 0.8 })}
               initialReview={{ decision: 'pending' }}
             />
           </div>
           <div>
-            <p className="state-label">Doesn't match the document (uncited value, label found with a different number)</p>
-            <FieldRowDemo
-              field={sampleField({ id: 'ungrounded', label: 'Net income', value: '2,310', sourceQuote: null, confidence: 0.88 })}
-              initialReview={{ decision: 'pending' }}
-              citations={[{ page: 3, lineIndexes: [10], code: '3b', kind: 'mismatch', option: null }]}
-              mismatch={{ page: 3, lineIndex: 10, documentValue: '1,904', difference: 406, pageTitle: 'Consolidated statement of operations' }}
-            />
-          </div>
-          <div>
-            <p className="state-label">No source cited (no line in the document to compare with)</p>
-            <FieldRowDemo
-              field={sampleField({ id: 'ungrounded-plain', label: 'Interest coverage', value: '3.2', unit: undefined, sourceQuote: null, confidence: 0.8 })}
-              initialReview={{ decision: 'pending' }}
-            />
-          </div>
-          <div>
-            <p className="state-label">Calculated, not extracted</p>
+            <p className="state-label">Calculated</p>
             <FieldRowDemo
               field={sampleField({
                 id: 'derived',
@@ -399,6 +365,7 @@ export function SystemPage() {
                 value: '1.42',
                 unit: undefined,
                 sourceQuote: null,
+                page: undefined,
                 confidence: 0.9,
                 derived: { formula: 'ebitda / annual_debt_service', inputLabels: ['EBITDA', 'Annual debt service'] },
               })}
@@ -406,7 +373,7 @@ export function SystemPage() {
             />
           </div>
           <div>
-            <p className="state-label">Long narrative value (rendered as prose, not a mono figure)</p>
+            <p className="state-label">Narrative value</p>
             <FieldRowDemo
               field={sampleField({
                 id: 'prose',
@@ -418,74 +385,33 @@ export function SystemPage() {
                 confidence: 0.74,
               })}
               initialReview={{ decision: 'pending' }}
+              citations={[{ page: 6, lineIndexes: [0], code: '6a', kind: 'cite', option: null }]}
             />
           </div>
           <div>
-            <p className="state-label">Conflicting values — unresolved (two legitimate definitions)</p>
-            <FieldRowDemo
-              field={conflictField}
-              initialReview={{ decision: 'pending' }}
-              citations={[
-                { page: 4, lineIndexes: [8], code: '4a', kind: 'option', option: 1 },
-                { page: 6, lineIndexes: [4], code: '6b', kind: 'option', option: 2 },
-              ]}
-            />
+            <p className="state-label">Two possible values, unresolved</p>
+            <FieldRowDemo field={CONFLICT_FIELD} initialReview={{ decision: 'pending' }} citations={DEBT_OPTIONS} />
           </div>
           <div>
-            <p className="state-label">Conflicting values — resolved by analyst</p>
+            <p className="state-label">Two possible values, resolved</p>
             <FieldRowDemo
-              field={{ ...conflictField, id: 'total-debt-resolved' }}
+              field={{ ...CONFLICT_FIELD, id: 'total-debt-resolved' }}
               initialReview={{ decision: 'edited', editedValue: '24,750', resolvedCandidate: '24,750' }}
-              citations={[
-                { page: 4, lineIndexes: [8], code: '4a', kind: 'option', option: 1 },
-                { page: 6, lineIndexes: [4], code: '6b', kind: 'option', option: 2 },
-              ]}
+              citations={DEBT_OPTIONS}
             />
           </div>
         </div>
       </section>
 
       <section className="system-section">
-        <h2 className="system-section__title">Edit field dialog</h2>
-        <Button variant="secondary" onClick={() => setDialogOpen(true)}>
-          Open edit dialog
-        </Button>
-        <EditFieldDialog
-          open={dialogOpen}
-          fieldId="demo-net-sales"
-          fieldLabel="Net sales"
-          currentValue="6210800"
-          unit="USD"
-          sourceQuote="Net sales ........................................... $ 6,210,800"
-          onSave={() => setDialogOpen(false)}
-          onClose={() => setDialogOpen(false)}
-        />
-      </section>
-
-      <section className="system-section">
-        <h2 className="system-section__title">Error banner</h2>
-        <ErrorBanner
-          message="Extraction job lost connection to the document service before finishing."
-          receivedCount={5}
-          totalCount={9}
-          onRetry={() => {}}
-        />
-      </section>
-
-      <section className="system-section">
-        <h2 className="system-section__title">Empty state</h2>
-        <EmptyState
-          title="No extraction in progress"
-          description="Run the extraction model against this borrower's financial statements to begin review."
-          actionLabel="Run extraction"
-          onAction={() => {}}
-        />
+        <h2 className="system-section__title">Source panel</h2>
+        <SourcePanelDemo />
       </section>
 
       <section className="system-section">
         <h2 className="system-section__title">Document header</h2>
         <div className="component-grid">
-          <div>
+          <div className="system-page__region">
             <p className="state-label">Streaming, nothing decided yet</p>
             <DocumentHeader
               borrowerName="Halvorsen Marine Supply, LLC"
@@ -499,7 +425,7 @@ export function SystemPage() {
               onApprove={() => {}}
             />
           </div>
-          <div>
+          <div className="system-page__region">
             <p className="state-label">Complete, partly reviewed</p>
             <DocumentHeader
               borrowerName="Halvorsen Marine Supply, LLC"
@@ -513,7 +439,7 @@ export function SystemPage() {
               onApprove={() => {}}
             />
           </div>
-          <div>
+          <div className="system-page__region">
             <p className="state-label">Approved</p>
             <DocumentHeader
               borrowerName="Halvorsen Marine Supply, LLC"
@@ -531,10 +457,48 @@ export function SystemPage() {
       </section>
 
       <section className="system-section">
+        <h2 className="system-section__title">Edit field dialog</h2>
+        <div className="component-row">
+          <Button variant="quiet" onClick={() => setDialogOpen(true)}>
+            Open edit dialog
+          </Button>
+        </div>
+        <EditFieldDialog
+          open={dialogOpen}
+          fieldId="demo-net-sales"
+          fieldLabel="Total revenue"
+          currentValue="48,213"
+          unit="USD"
+          sourceQuote="Net sales 48,213"
+          onSave={() => setDialogOpen(false)}
+          onClose={() => setDialogOpen(false)}
+        />
+      </section>
+
+      <section className="system-section">
+        <h2 className="system-section__title">Error banner</h2>
+        <ErrorBanner
+          message="Extraction job lost connection to the document service before finishing."
+          receivedCount={6}
+          totalCount={10}
+          onRetry={() => {}}
+        />
+      </section>
+
+      <section className="system-section">
+        <h2 className="system-section__title">Empty state</h2>
+        <EmptyState
+          title="No extraction in progress"
+          description="Run the extraction model against this borrower's financial statements to begin review."
+          actionLabel="Run extraction"
+          onAction={() => {}}
+        />
+      </section>
+
+      <section className="system-section">
         <h2 className="system-section__title">Live streaming demo</h2>
         <p className="system-page__intro">
-          Drives the same simulator used on the Review page. Use the control below to try the
-          success, slow, and failure paths.
+          Drives the same simulator as the Review page. Use the control to try the success, slow and failure paths.
         </p>
         <LiveStreamDemo />
       </section>

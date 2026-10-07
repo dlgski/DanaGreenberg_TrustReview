@@ -121,3 +121,119 @@ export function findAllMismatches(fields: ExtractionField[], pages: SourcePage[]
   }
   return result;
 }
+
+export type CitationKind = 'cite' | 'option' | 'mismatch';
+
+export interface SourceCitation {
+  page: number;
+  /** Lines the quote covers. Empty when the quote couldn't be found on its page. */
+  lineIndexes: number[];
+  /** Page number plus a letter, e.g. "3a". null when the quote couldn't be found. */
+  code: string | null;
+  kind: CitationKind;
+  /** 1-based option number for a conflicting field, otherwise null. */
+  option: number | null;
+}
+
+export interface LineReference {
+  code: string;
+  kind: CitationKind;
+  fieldIds: string[];
+}
+
+export interface ReferenceIndex {
+  /** Citations per field id, in option order for conflicting fields. */
+  byField: Record<string, SourceCitation[]>;
+  /** Keyed by lineKey(page, lineIndex), for the first line of each citation only. */
+  byLine: Record<string, LineReference>;
+}
+
+type UncodedCitation = Omit<SourceCitation, 'code'>;
+
+/**
+ * Gives every cited line a workpaper-style code: the page number plus a letter in
+ * line order within that page (3a, 3b, 3c). Codes depend only on line positions,
+ * never on field order, so they stay the same while fields stream in.
+ */
+export function assignReferenceCodes(
+  fields: ExtractionField[],
+  pages: SourcePage[],
+  mismatches: Record<string, LabelMismatch>,
+): ReferenceIndex {
+  const textByPage = new Map(pages.map((p) => [p.page, p.text]));
+  const locate = (page: number | undefined, quote: string | null) => {
+    if (page === undefined || quote === null) return null;
+    const text = textByPage.get(page);
+    return { page, lineIndexes: text === undefined ? [] : (findQuoteLines(text, quote) ?? []) };
+  };
+
+  const pending: { fieldId: string; citation: UncodedCitation }[] = [];
+  for (const field of fields) {
+    const mismatch = mismatches[field.id];
+    if (mismatch) {
+      pending.push({
+        fieldId: field.id,
+        citation: { page: mismatch.page, lineIndexes: [mismatch.lineIndex], kind: 'mismatch', option: null },
+      });
+      continue;
+    }
+    if (field.candidates && field.candidates.length > 0) {
+      const options = [
+        { page: field.page, quote: field.sourceQuote },
+        ...field.candidates.map((c) => ({ page: c.page, quote: c.sourceQuote })),
+      ];
+      options.forEach((option, i) => {
+        const located = locate(option.page, option.quote);
+        if (located) pending.push({ fieldId: field.id, citation: { ...located, kind: 'option', option: i + 1 } });
+      });
+      continue;
+    }
+    const located = locate(field.page, field.sourceQuote);
+    if (located) pending.push({ fieldId: field.id, citation: { ...located, kind: 'cite', option: null } });
+  }
+
+  const firstLinesByPage = new Map<number, number[]>();
+  for (const { citation } of pending) {
+    if (citation.lineIndexes.length === 0) continue;
+    const list = firstLinesByPage.get(citation.page) ?? [];
+    if (!list.includes(citation.lineIndexes[0])) list.push(citation.lineIndexes[0]);
+    firstLinesByPage.set(citation.page, list);
+  }
+  const codeFor = (page: number, firstLine: number) => {
+    const sorted = [...(firstLinesByPage.get(page) ?? [])].sort((a, b) => a - b);
+    return `${page}${String.fromCharCode(97 + sorted.indexOf(firstLine))}`;
+  };
+
+  const index: ReferenceIndex = { byField: {}, byLine: {} };
+  for (const { fieldId, citation } of pending) {
+    const hasLines = citation.lineIndexes.length > 0;
+    const code = hasLines ? codeFor(citation.page, citation.lineIndexes[0]) : null;
+    (index.byField[fieldId] ??= []).push({ ...citation, code });
+    if (code === null) continue;
+    const key = lineKey(citation.page, citation.lineIndexes[0]);
+    const existing = index.byLine[key];
+    if (!existing) {
+      index.byLine[key] = { code, kind: citation.kind, fieldIds: [fieldId] };
+    } else if (!existing.fieldIds.includes(fieldId)) {
+      existing.fieldIds.push(fieldId);
+    }
+  }
+  return index;
+}
+
+export const IDLE_SOURCE_STATUS = "Choose a field's code to find its line here.";
+
+function joinWithAnd(items: string[]): string {
+  if (items.length <= 1) return items.join('');
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+}
+
+/** The source panel's live status line for the field being shown. */
+export function describeSelection(fieldLabel: string, citations: SourceCitation[]): string {
+  if (citations.length === 0) return `Nothing to show in the source for ${fieldLabel}.`;
+  const missing = citations.find((c) => c.code === null);
+  if (missing) return `Couldn't find the quoted text on page ${missing.page}. Showing the whole page.`;
+  const codes = citations.map((c) => c.code ?? '');
+  if (codes.length === 1) return `Showing line ${codes[0]}, cited for ${fieldLabel}.`;
+  return `Showing lines ${joinWithAnd(codes)} for ${fieldLabel}.`;
+}

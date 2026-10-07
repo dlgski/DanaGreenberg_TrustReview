@@ -1,0 +1,49 @@
+.edit-field-dialog {
+  width: min(480px, 90vw);
+}
+
+.edit-field-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.edit-field-dialog__title {
+  font-size: var(--font-size-lg);
+}
+
+.edit-field-dialog__original {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.edit-field-dialog__quote {
+  padding: var(--space-3);
+  background: var(--color-surface-sunken);
+  border-left: var(--border-width-thick) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+}
+
+.edit-field-dialog__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.edit-field-dialog__input {
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-thin) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+}
+
+.edit-field-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

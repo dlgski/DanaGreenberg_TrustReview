@@ -1,0 +1,117 @@
+{
+  "job_id": "ext_7f3a91c2",
+  "document": {
+    "filename": "Halvorsen_FY2025_Financials.pdf",
+    "page_count": 6
+  },
+  "model": "extractor-v4",
+  "completed_at": "2026-09-14T15:42:08Z",
+  "fields": [
+    {
+      "key": "borrower_legal_name",
+      "label": "Borrower legal name",
+      "value": "Halvorsen Marine Supply, LLC",
+      "confidence": 0.99,
+      "source": { "page": 1, "quote": "Halvorsen Marine Supply, LLC and Subsidiary" }
+    },
+    {
+      "key": "fiscal_year_end",
+      "label": "Fiscal year end",
+      "value": "2025-06-30",
+      "confidence": 0.41,
+      "source": { "page": 1, "quote": "for the fiscal year ended June 30, 2025" }
+    },
+    {
+      "key": "total_revenue",
+      "label": "Total revenue",
+      "value": 48213,
+      "unit": "USD",
+      "confidence": 0.95,
+      "source": { "page": 3, "quote": "Net sales 48,213" }
+    },
+    {
+      "key": "ebitda",
+      "label": "EBITDA",
+      "value": 6120,
+      "unit": "USD",
+      "confidence": 0.97,
+      "source": { "page": 3, "quote": "Adjusted EBITDA (see Note 7) 6,120" }
+    },
+    {
+      "key": "total_debt",
+      "label": "Total debt",
+      "value": 21500,
+      "unit": "USD",
+      "confidence": 0.62,
+      "source": { "page": 4, "quote": "Total long-term debt 21,500" },
+      "alternates": [
+        { "value": 24750, "source": { "page": 6, "quote": "Total debt, including current portion 24,750" } }
+      ]
+    },
+    {
+      "key": "net_income",
+      "label": "Net income",
+      "value": 2310,
+      "unit": "USD",
+      "confidence": 0.88,
+      "source": null
+    },
+    {
+      "key": "dscr",
+      "label": "Debt service coverage ratio",
+      "value": 1.42,
+      "confidence": 0.9,
+      "derived": { "formula": "ebitda / annual_debt_service", "inputs": ["ebitda", "annual_debt_service"] },
+      "source": null
+    },
+    {
+      "key": "annual_debt_service",
+      "label": "Annual debt service",
+      "value": 4310,
+      "unit": "USD",
+      "confidence": 0.83,
+      "source": { "page": 6, "quote": "Scheduled principal and interest payments, next twelve months 4,310" }
+    },
+    {
+      "key": "guarantor",
+      "label": "Guarantor",
+      "value": null,
+      "confidence": null,
+      "status": "not_found",
+      "source": null
+    },
+    {
+      "key": "covenant_summary",
+      "label": "Financial covenants",
+      "value": "The Company is required to maintain a minimum fixed charge coverage ratio of 1.25 to 1.00, measured quarterly on a trailing twelve-month basis, and a maximum senior leverage ratio of 3.50 to 1.00 stepping down to 3.25 to 1.00 for fiscal quarters ending after December 31, 2025. As of June 30, 2025, the Company was in compliance with all covenants, except as described in Note 9, for which the lender granted a waiver dated August 4, 2025.",
+      "confidence": 0.74,
+      "source": { "page": 6, "quote": "Note 8 — Debt and Covenants" }
+    }
+  ],
+  "source_pages": [
+    {
+      "page": 1,
+      "text": "HALVORSEN MARINE SUPPLY, LLC AND SUBSIDIARY\nConsolidated Financial Statements\nfor the fiscal year ended June 30, 2025\nwith Independent Auditor's Report"
+    },
+    {
+      "page": 2,
+      "text": "INDEPENDENT AUDITOR'S REPORT\nTo the Members of Halvorsen Marine Supply, LLC\nOpinion: We have audited the accompanying consolidated financial statements... In our opinion, the financial statements present fairly, in all material respects, the financial position of the Company as of June 30, 2025..."
+    },
+    {
+      "page": 3,
+      "text": "CONSOLIDATED STATEMENT OF OPERATIONS\n(in thousands of U.S. dollars)\nNet sales 48,213\nCost of goods sold 36,904\nGross profit 11,309\nSelling, general and administrative 6,429\nOperating income 4,880\nInterest expense 1,512\nIncome before taxes 3,368\nIncome tax expense 1,464\nNet income 1,904\n\nSupplemental (non-GAAP):\nAdjusted EBITDA (see Note 7) 6,120"
+    },
+    {
+      "page": 4,
+      "text": "CONSOLIDATED BALANCE SHEET\n(in thousands of U.S. dollars)\nCash and equivalents 3,215\nAccounts receivable, net 7,842\nInventory 12,906\nTotal current assets 24,388\n...\nCurrent portion of long-term debt 3,250\nTotal long-term debt 21,500\nTotal members' equity 18,077"
+    },
+    {
+      "page": 5,
+      "text": "NOTE 7 — ADJUSTED EBITDA\nAdjusted EBITDA is a non-GAAP measure defined as operating income plus depreciation and amortization (1,034), plus one-time restructuring costs (206). Management believes this measure... EBITDA as defined under the Credit Agreement excludes restructuring add-backs and was 5,914 for the year."
+    },
+    {
+      "page": 6,
+      "text": "NOTE 8 — DEBT AND COVENANTS\n(in thousands of U.S. dollars)\nTerm loan 18,000\nRevolving line of credit 6,750\nTotal debt, including current portion 24,750\nScheduled principal and interest payments, next twelve months 4,310\nThe Company is required to maintain a minimum fixed charge coverage ratio of 1.25 to 1.00... As of June 30, 2025, the Company was in compliance with all covenants, except as described in Note 9, for which the lender granted a waiver dated August 4, 2025.\n\nNOTE 9 — SUBSEQUENT EVENTS\nIn Q4 the Company did not meet the minimum fixed charge coverage ratio. The lender waived this event of default on August 4, 2025."
+    }
+  ]
+}

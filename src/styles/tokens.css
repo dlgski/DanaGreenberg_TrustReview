@@ -1,0 +1,133 @@
+/*
+  Design tokens. This is the only file in the project allowed to contain
+  raw hex colors or pixel values. Every component consumes these through
+  var(--token-name) — never a literal.
+*/
+
+:root {
+  /* ---- Color: primitives ---- */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f7f8fa;
+  --color-neutral-100: #eef0f3;
+  --color-neutral-200: #dde1e6;
+  --color-neutral-300: #c3c9d1;
+  --color-neutral-400: #9aa3af;
+  --color-neutral-500: #717b8a;
+  --color-neutral-600: #4f5866;
+  --color-neutral-700: #343c48;
+  --color-neutral-800: #1f2530;
+  --color-neutral-900: #11151c;
+
+  --color-blue-100: #dbeafe;
+  --color-blue-500: #2563eb;
+  --color-blue-600: #1d4ed8;
+  --color-blue-700: #1e40af;
+
+  --color-green-100: #dcfce7;
+  --color-green-500: #16a34a;
+  --color-green-700: #15803d;
+
+  --color-amber-100: #fef3c7;
+  --color-amber-500: #d97706;
+  --color-amber-700: #92400e;
+
+  --color-red-100: #fee2e2;
+  --color-red-500: #dc2626;
+  --color-red-700: #991b1b;
+
+  /* ---- Color: semantic ---- */
+  --color-bg: var(--color-neutral-50);
+  --color-surface: var(--color-neutral-0);
+  --color-surface-sunken: var(--color-neutral-100);
+  --color-border: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-300);
+
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-muted: var(--color-neutral-500);
+  --color-text-on-accent: var(--color-neutral-0);
+
+  --color-interactive: var(--color-blue-600);
+  --color-interactive-hover: var(--color-blue-700);
+  --color-interactive-subtle: var(--color-blue-100);
+  --color-focus-ring: var(--color-blue-500);
+
+  --color-status-success-bg: var(--color-green-100);
+  --color-status-success-text: var(--color-green-700);
+  --color-status-success-border: var(--color-green-500);
+
+  --color-status-caution-bg: var(--color-amber-100);
+  --color-status-caution-text: var(--color-amber-700);
+  --color-status-caution-border: var(--color-amber-500);
+
+  --color-status-danger-bg: var(--color-red-100);
+  --color-status-danger-text: var(--color-red-700);
+  --color-status-danger-border: var(--color-red-500);
+
+  --color-status-info-bg: var(--color-blue-100);
+  --color-status-info-text: var(--color-blue-700);
+  --color-status-info-border: var(--color-blue-500);
+
+  --color-status-neutral-bg: var(--color-neutral-100);
+  --color-status-neutral-text: var(--color-neutral-600);
+  --color-status-neutral-border: var(--color-neutral-300);
+
+  /* ---- Spacing ---- */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- Type ---- */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 22px;
+  --font-size-2xl: 28px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+
+  /* ---- Border ---- */
+  --border-width-thin: 1px;
+  --border-width-thick: 2px;
+
+  /* ---- Shadow ---- */
+  --shadow-sm: 0 1px 2px rgba(17, 21, 28, 0.06);
+  --shadow-md: 0 4px 12px rgba(17, 21, 28, 0.10);
+  --shadow-lg: 0 12px 32px rgba(17, 21, 28, 0.16);
+
+  /* ---- Motion ---- */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 400ms;
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- Z-index ---- */
+  --z-dialog: 100;
+  --z-toast: 200;
+}

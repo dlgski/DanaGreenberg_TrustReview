@@ -1,0 +1,32 @@
+.app__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.app__brand {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.app__nav-links {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.app__nav-links a {
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding-bottom: var(--space-1);
+}
+
+.app__nav-links a[aria-current='page'] {
+  color: var(--color-interactive);
+  border-bottom: var(--border-width-thick) solid var(--color-interactive);
+}

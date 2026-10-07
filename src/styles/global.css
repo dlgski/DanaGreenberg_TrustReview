@@ -1,0 +1,40 @@
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+}
+
+h1, h2, h3, h4 {
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-semibold);
+}
+
+a {
+  color: var(--color-interactive);
+}
+
+:focus-visible {
+  outline: var(--border-width-thick) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 0;
+}
+
+dialog::backdrop {
+  background: rgba(17, 21, 28, 0.45);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}

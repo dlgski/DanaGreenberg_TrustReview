@@ -1,0 +1,55 @@
+.review-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 920px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-16);
+}
+
+.review-page__dev-control {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.review-page__live-region {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.review-page__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.review-page__full-source summary {
+  cursor: pointer;
+  color: var(--color-interactive);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.review-page__full-source-page {
+  margin-top: var(--space-4);
+  scroll-margin-top: var(--space-6);
+}
+
+.review-page__full-source-heading {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.review-page__full-source-text {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+}

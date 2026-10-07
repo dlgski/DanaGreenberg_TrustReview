@@ -180,7 +180,7 @@ option confirms the field, as today. The fieldset has a visually hidden legend.
 ### Mismatch marker
 
 The mismatch line is always marked, selected or not: margin code in red pencil, bold text, and a
-red-pencil note under it, "Differs from extracted net income, 2,310". When that field's reference
+red-pencil note under it, "Differs from extracted Net income, 2,310" (field name keeps its casing). When that field's reference
 is active, the line also gets the white background and a red pencil bar.
 
 ## Finding quotes in the page

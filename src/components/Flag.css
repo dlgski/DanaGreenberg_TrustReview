@@ -1,0 +1,20 @@
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.flag--caution {
+  color: var(--color-ochre);
+}
+
+.flag--danger {
+  color: var(--color-pencil-red);
+}
+
+.flag--info {
+  color: var(--color-pencil-blue);
+}

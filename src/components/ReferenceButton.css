@@ -1,0 +1,42 @@
+.reference-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-pencil-blue);
+}
+
+.reference-button--red {
+  color: var(--color-pencil-red);
+}
+
+.reference-button__code {
+  padding: 0 var(--space-1);
+  border: var(--border-mid) solid currentColor;
+  border-radius: var(--radius-code);
+  font-family: var(--font-doc);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-code);
+}
+
+.reference-button:hover .reference-button__label {
+  text-decoration: underline;
+  text-underline-offset: var(--underline-offset);
+}
+
+.reference-button[aria-pressed='true'] .reference-button__code {
+  background: var(--color-pencil-blue);
+  border-color: var(--color-pencil-blue);
+  color: var(--color-on-dark);
+}
+
+.reference-button--red[aria-pressed='true'] .reference-button__code {
+  background: var(--color-pencil-red);
+  border-color: var(--color-pencil-red);
+}

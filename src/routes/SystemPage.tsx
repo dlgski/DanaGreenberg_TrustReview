@@ -10,6 +10,9 @@ import { ProgressIndicator } from '../components/ProgressIndicator';
 import { DocumentHeader } from '../components/DocumentHeader';
 import { EditFieldDialog } from '../components/EditFieldDialog';
 import { ScenarioControl } from '../components/ScenarioControl';
+import { Flag } from '../components/Flag';
+import { TickMark } from '../components/TickMark';
+import { ReferenceButton } from '../components/ReferenceButton';
 import { useExtractionStream } from '../lib/useExtractionStream';
 import type { ExtractionField, FieldReviewState } from '../lib/types';
 import type { StreamScenario } from '../lib/streamExtraction';
@@ -162,6 +165,34 @@ export function SystemPage() {
           no raw hex or pixel values live outside this token layer.
         </p>
       </div>
+
+      <section className="system-section">
+        <h2 className="system-section__title">Workpaper primitives</h2>
+        <div className="component-row">
+          <TickMark decision="pending" />
+          <TickMark decision="confirmed" />
+          <TickMark decision="edited" />
+          <TickMark decision="rejected" />
+        </div>
+        <div className="component-row">
+          <Flag tone="caution" icon="warning">Model was unsure</Flag>
+          <Flag tone="caution" icon="split">Two possible values</Flag>
+          <Flag tone="danger" icon="warning">Doesn't match the document</Flag>
+          <Flag tone="info" icon="calculator">Calculated, not read from the document</Flag>
+        </div>
+        <div className="component-row">
+          <ReferenceButton codes={['3a']} label="Show in source" pressed={false} onClick={() => {}} />
+          <ReferenceButton codes={['3a']} label="Show in source" pressed onClick={() => {}} />
+          <ReferenceButton codes={['4a', '6b']} label="Show both in source" pressed={false} onClick={() => {}} />
+          <ReferenceButton codes={['3b']} label="Show the line on page 3" pressed tone="red" onClick={() => {}} />
+        </div>
+        <div className="component-row">
+          <Button variant="text">Reject</Button>
+          <Button variant="quiet">Edit</Button>
+          <Button variant="primary">Confirm</Button>
+          <Button variant="primary" size="large" disabled>Approve extraction</Button>
+        </div>
+      </section>
 
       <section className="system-section">
         <h2 className="system-section__title">Color</h2>

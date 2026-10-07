@@ -26,6 +26,8 @@
   flex: 1;
   min-height: 0;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  /* Without this the row grows to the source text and the page itself scrolls. */
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-4);
 }
 

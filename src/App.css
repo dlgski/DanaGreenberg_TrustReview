@@ -41,4 +41,6 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
+  /* Containing block for absolutely positioned visually-hidden text, so it can't extend the document. */
+  position: relative;
 }

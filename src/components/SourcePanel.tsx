@@ -35,6 +35,7 @@ export function SourcePanel({
 }: SourcePanelProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
 
   const activeCitations = activeFieldId ? (references.byField[activeFieldId] ?? []) : [];
   const activeLabel = activeFieldId ? (fieldLabels[activeFieldId] ?? '') : '';
@@ -72,7 +73,29 @@ export function SourcePanel({
   useEffect(() => {
     if (!drawerOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onCloseDrawer();
+      if (event.key === 'Escape') {
+        onCloseDrawer();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      // aria-modal: keep Tab and Shift+Tab inside the drawer.
+      const focusable = Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), [tabindex="0"]') ?? [],
+      );
+      if (focusable.length === 0) return;
+      const firstEl = focusable[0];
+      const lastEl = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (!panelRef.current?.contains(active)) {
+        event.preventDefault();
+        firstEl.focus();
+      } else if (event.shiftKey && active === firstEl) {
+        event.preventDefault();
+        lastEl.focus();
+      } else if (!event.shiftKey && active === lastEl) {
+        event.preventDefault();
+        firstEl.focus();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
@@ -86,6 +109,7 @@ export function SourcePanel({
         aria-hidden="true"
       />
       <aside
+        ref={panelRef}
         className={`source-panel${drawerOpen ? ' source-panel--open' : ''}`}
         aria-labelledby="source-panel-title"
         role={drawerOpen ? 'dialog' : undefined}
@@ -112,7 +136,7 @@ export function SourcePanel({
           {activeFieldId ? describeSelection(activeLabel, activeCitations) : IDLE_SOURCE_STATUS}
         </p>
 
-        <div className="source-panel__body" ref={bodyRef}>
+        <div className="source-panel__body" ref={bodyRef} tabIndex={0} role="region" aria-label="Source document text">
           {pages.map((page) => (
             <section
               key={page.page}

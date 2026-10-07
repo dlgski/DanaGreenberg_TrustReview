@@ -13,6 +13,7 @@ import { ScenarioControl } from '../components/ScenarioControl';
 import { Flag } from '../components/Flag';
 import { TickMark } from '../components/TickMark';
 import { ReferenceButton } from '../components/ReferenceButton';
+import { VarianceSchedule } from '../components/VarianceSchedule';
 import { useExtractionStream } from '../lib/useExtractionStream';
 import type { ExtractionField, FieldReviewState } from '../lib/types';
 import type { StreamScenario } from '../lib/streamExtraction';
@@ -192,6 +193,14 @@ export function SystemPage() {
           <Button variant="primary">Confirm</Button>
           <Button variant="primary" size="large" disabled>Approve extraction</Button>
         </div>
+        <VarianceSchedule
+          fieldLabel="Net income"
+          extractedValue="2,310"
+          documentValue="1,904"
+          documentSource="Consolidated statement of operations, page 3"
+          difference={406}
+          code="3b"
+        />
       </section>
 
       <section className="system-section">

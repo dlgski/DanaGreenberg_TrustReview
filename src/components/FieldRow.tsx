@@ -94,11 +94,12 @@ export function FieldRow({ field, review, onConfirm, onReject, onEdit, onResolve
       {hasCandidates ? (
         <ConflictResolver
           fieldId={field.id}
+          fieldLabel={field.label}
           originalValue={field.value}
           originalQuote={field.sourceQuote}
           originalPage={field.page}
-          unit={field.unit}
           candidates={field.candidates ?? []}
+          codes={[]}
           resolvedValue={review.decision === 'confirmed' ? field.value : review.editedValue}
           onResolve={onResolveCandidate}
         />

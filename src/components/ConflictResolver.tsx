@@ -3,22 +3,25 @@ import './ConflictResolver.css';
 
 interface ConflictResolverProps {
   fieldId: string;
+  fieldLabel: string;
   originalValue: string;
   originalQuote: string | null;
   originalPage?: number;
-  unit?: string;
   candidates: ExtractionCandidate[];
+  /** Reference code for each option, original first. null when its quote wasn't found. */
+  codes: (string | null)[];
   resolvedValue?: string;
   onResolve: (value: string) => void;
 }
 
 export function ConflictResolver({
   fieldId,
+  fieldLabel,
   originalValue,
   originalQuote,
   originalPage,
-  unit,
   candidates,
+  codes,
   resolvedValue,
   onResolve,
 }: ConflictResolverProps) {
@@ -29,10 +32,7 @@ export function ConflictResolver({
 
   return (
     <fieldset className="conflict-resolver">
-      <legend className="conflict-resolver__legend">
-        The model found more than one value for this field in the document. Choose the one that
-        applies.
-      </legend>
+      <legend className="visually-hidden">Choose the value for {fieldLabel}</legend>
       {options.map((option, index) => (
         <label className="conflict-resolver__option" key={index}>
           <input
@@ -42,15 +42,12 @@ export function ConflictResolver({
             checked={resolvedValue === option.value}
             onChange={() => onResolve(option.value)}
           />
-          <span className="conflict-resolver__option-body">
-            <span className="conflict-resolver__value">
-              {option.value || '(empty)'} {unit}
-            </span>
-            <span className="conflict-resolver__source">
-              {option.page ? `Page ${option.page}: ` : ''}
-              {option.quote ?? '(no source cited)'}
-            </span>
+          <span className="conflict-resolver__source">
+            {codes[index] ? <code className="conflict-resolver__code">{codes[index]}</code> : null}
+            {option.quote ?? 'No source cited'}
+            {option.page ? `, page ${option.page}` : ''}
           </span>
+          <span className="conflict-resolver__value">{option.value || '(empty)'}</span>
         </label>
       ))}
     </fieldset>

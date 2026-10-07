@@ -1,0 +1,39 @@
+.variance-schedule {
+  margin-top: var(--space-2-5);
+  padding: var(--space-2-5) var(--space-3-5) var(--space-3);
+  border-radius: var(--radius-option);
+  background: var(--color-red-wash);
+}
+
+.variance-schedule__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.variance-schedule__table th {
+  padding: var(--space-1) 0;
+  text-align: left;
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+}
+
+.variance-schedule__table td {
+  padding: var(--space-1) 0;
+  text-align: right;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.variance-schedule__difference th,
+.variance-schedule__difference td {
+  padding-top: var(--space-1-5);
+  border-top: var(--border-mid) solid var(--color-pencil-red);
+  color: var(--color-pencil-red);
+}
+
+.variance-schedule__note {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-red-ink);
+}

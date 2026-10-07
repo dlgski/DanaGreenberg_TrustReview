@@ -20,7 +20,7 @@ function App() {
           </a>
         </div>
       </nav>
-      <main>{path === '/system' ? <SystemPage /> : <ReviewPage />}</main>
+      <main className="app__main">{path === '/system' ? <SystemPage /> : <ReviewPage />}</main>
     </div>
   );
 }

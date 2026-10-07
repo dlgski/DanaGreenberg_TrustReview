@@ -1,34 +1,36 @@
 body {
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-base);
-  color: var(--color-text-primary);
-  background: var(--color-bg);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+  color: var(--color-graphite);
+  background: var(--color-card);
 }
 
 h1, h2, h3, h4 {
-  line-height: var(--line-height-tight);
-  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-semibold);
 }
 
 a {
-  color: var(--color-interactive);
+  color: var(--color-pencil-blue);
 }
 
 :focus-visible {
-  outline: var(--border-width-thick) solid var(--color-focus-ring);
-  outline-offset: 2px;
+  outline: var(--border-thick) solid var(--color-pencil-blue);
+  outline-offset: var(--border-thick);
+  border-radius: var(--radius-code);
 }
 
 dialog {
   border: none;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-dialog);
   padding: 0;
+  color: var(--color-graphite);
 }
 
 dialog::backdrop {
-  background: rgba(17, 21, 28, 0.45);
+  background: var(--color-backdrop);
 }
 
 button {
@@ -37,4 +39,13 @@ button {
 
 button:disabled {
   cursor: not-allowed;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: var(--border-thin);
+  height: var(--border-thin);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

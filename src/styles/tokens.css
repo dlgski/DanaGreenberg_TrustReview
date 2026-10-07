@@ -1,83 +1,86 @@
 /*
   Design tokens. This is the only file in the project allowed to contain
   raw hex colors or pixel values. Every component consumes these through
-  var(--token-name) — never a literal.
+  var(--token-name), never a literal. The visual language is the audit
+  workpaper: graphite text, blue pencil for verified marks and references,
+  red pencil for exceptions, and ledger-pad green for the source document.
 */
 
 :root {
-  /* ---- Color: primitives ---- */
-  --color-neutral-0: #ffffff;
-  --color-neutral-50: #f7f8fa;
-  --color-neutral-100: #eef0f3;
-  --color-neutral-200: #dde1e6;
-  --color-neutral-300: #c3c9d1;
-  --color-neutral-400: #9aa3af;
-  --color-neutral-500: #717b8a;
-  --color-neutral-600: #4f5866;
-  --color-neutral-700: #343c48;
-  --color-neutral-800: #1f2530;
-  --color-neutral-900: #11151c;
+  /* ---- Color ---- */
+  --color-graphite: #23262b;
+  --color-graphite-hover: #000000;
+  --color-graphite-2: #4d535c;
+  --color-graphite-3: #5f6670;
+  --color-on-dark: #ffffff;
 
-  --color-blue-100: #dbeafe;
-  --color-blue-500: #2563eb;
-  --color-blue-600: #1d4ed8;
-  --color-blue-700: #1e40af;
+  --color-region: #dde2e5;
+  --color-region-hover: #cfd5da;
+  --color-card: #ffffff;
+  --color-card-divider: #edf0f2;
+  --color-option: #f1f3f5;
+  --color-line: #d3d8dd;
+  --color-input-border: #757d87;
 
-  --color-green-100: #dcfce7;
-  --color-green-500: #16a34a;
-  --color-green-700: #15803d;
+  --color-ledger: #eaf0e6;
+  --color-ledger-line: #cdd8c6;
+  --color-ledger-text: #3f4a3c;
+  --color-ledger-code: #56634f;
 
-  --color-amber-100: #fef3c7;
-  --color-amber-500: #d97706;
-  --color-amber-700: #92400e;
+  --color-pencil-blue: #2547b8;
+  --color-blue-wash: #e2e8fa;
+  --color-pencil-red: #b3261e;
+  --color-red-wash: #fbe7e4;
+  --color-red-ink: #6e1a14;
+  --color-ochre: #865400;
 
-  --color-red-100: #fee2e2;
-  --color-red-500: #dc2626;
-  --color-red-700: #991b1b;
+  --color-tick-pending: #b8bfc6;
+  --color-disabled-bg: #b9c0c7;
+  --color-disabled-text: #f3f5f6;
+  --color-scrim: rgba(35, 38, 43, 0.3);
+  --color-backdrop: rgba(35, 38, 43, 0.45);
 
-  /* ---- Color: semantic ---- */
-  --color-bg: var(--color-neutral-50);
-  --color-surface: var(--color-neutral-0);
-  --color-surface-sunken: var(--color-neutral-100);
-  --color-border: var(--color-neutral-200);
-  --color-border-strong: var(--color-neutral-300);
+  /* ---- Type ---- */
+  --font-ui: "Libre Franklin", system-ui, sans-serif;
+  --font-doc: "Courier Prime", ui-monospace, monospace;
 
-  --color-text-primary: var(--color-neutral-900);
-  --color-text-secondary: var(--color-neutral-600);
-  --color-text-muted: var(--color-neutral-500);
-  --color-text-on-accent: var(--color-neutral-0);
+  --text-2xs: 11.5px;
+  --text-xs: 12.5px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 18px;
+  --text-2xl: 24px;
+  --text-3xl: 26px;
 
-  --color-interactive: var(--color-blue-600);
-  --color-interactive-hover: var(--color-blue-700);
-  --color-interactive-subtle: var(--color-blue-100);
-  --color-focus-ring: var(--color-blue-500);
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-heavy: 800;
 
-  --color-status-success-bg: var(--color-green-100);
-  --color-status-success-text: var(--color-green-700);
-  --color-status-success-border: var(--color-green-500);
+  --leading-tight: 1.1;
+  --leading-snug: 1.2;
+  --leading-code: 1.4;
+  --leading-base: 1.5;
+  --leading-relaxed: 1.6;
+  --leading-doc: 1.75;
 
-  --color-status-caution-bg: var(--color-amber-100);
-  --color-status-caution-text: var(--color-amber-700);
-  --color-status-caution-border: var(--color-amber-500);
-
-  --color-status-danger-bg: var(--color-red-100);
-  --color-status-danger-text: var(--color-red-700);
-  --color-status-danger-border: var(--color-red-500);
-
-  --color-status-info-bg: var(--color-blue-100);
-  --color-status-info-text: var(--color-blue-700);
-  --color-status-info-border: var(--color-blue-500);
-
-  --color-status-neutral-bg: var(--color-neutral-100);
-  --color-status-neutral-text: var(--color-neutral-600);
-  --color-status-neutral-border: var(--color-neutral-300);
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --underline-offset: 3px;
 
   /* ---- Spacing ---- */
   --space-0: 0px;
   --space-1: 4px;
+  --space-1-5: 6px;
   --space-2: 8px;
+  --space-2-5: 10px;
   --space-3: 12px;
+  --space-3-5: 14px;
   --space-4: 16px;
+  --space-4-5: 18px;
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
@@ -85,49 +88,113 @@
   --space-12: 48px;
   --space-16: 64px;
 
-  /* ---- Type ---- */
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* ---- Sizes ---- */
+  --size-icon: 13px;
+  --size-radio: 16px;
+  --size-tick: 24px;
+  --size-tick-box: 18px;
+  --size-tick-box-mark: 14px;
+  --tick-column: 46px;
+  --code-column: 40px;
+  --drawer-width: min(500px, 92vw);
+  --dialog-width: min(480px, 90vw);
+  --prose-measure: 62ch;
+  --demo-panel-height: 480px;
+  --system-page-width: 1040px;
+  --swatch-min: 140px;
+  --type-label-width: 120px;
+  --radius-sample-width: 120px;
+  --radius-sample-height: 96px;
 
-  --font-size-xs: 12px;
-  --font-size-sm: 13px;
-  --font-size-base: 15px;
-  --font-size-md: 16px;
-  --font-size-lg: 18px;
-  --font-size-xl: 22px;
-  --font-size-2xl: 28px;
+  /* ---- Radius (by level: region > panel > card > option > control > code) ---- */
+  --radius-region: 20px;
+  --radius-panel: 14px;
+  --radius-card: 10px;
+  --radius-option: 8px;
+  --radius-control: 7px;
+  --radius-code: 4px;
 
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  /* ---- Borders ---- */
+  --border-thin: 1px;
+  --border-mid: 1.5px;
+  --border-thick: 2px;
+  --bar-width: 3px;
 
-  --line-height-tight: 1.2;
-  --line-height-base: 1.5;
-  --line-height-relaxed: 1.7;
-
-  /* ---- Radius ---- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-full: 999px;
-
-  /* ---- Border ---- */
-  --border-width-thin: 1px;
-  --border-width-thick: 2px;
-
-  /* ---- Shadow ---- */
-  --shadow-sm: 0 1px 2px rgba(17, 21, 28, 0.06);
-  --shadow-md: 0 4px 12px rgba(17, 21, 28, 0.10);
-  --shadow-lg: 0 12px 32px rgba(17, 21, 28, 0.16);
+  /* ---- Shadow (drawer and dialog only) ---- */
+  --shadow-drawer: -16px 0 40px rgba(35, 38, 43, 0.2);
+  --shadow-dialog: 0 12px 32px rgba(35, 38, 43, 0.16);
 
   /* ---- Motion ---- */
   --duration-fast: 120ms;
   --duration-base: 200ms;
-  --duration-slow: 400ms;
+  --duration-drawer: 260ms;
+  --duration-tick: 380ms;
   --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-drawer: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* ---- Z-index ---- */
+  --z-scrim: 10;
+  --z-drawer: 20;
   --z-dialog: 100;
+
+  /* ---- Legacy aliases ----
+     Old token names pointed at the new palette, so components that haven't been
+     migrated yet still render. Task 11 deletes this whole block. */
+  --color-neutral-100: var(--color-option);
+  --color-neutral-200: var(--color-region);
+  --color-bg: var(--color-card);
+  --color-surface: var(--color-card);
+  --color-surface-sunken: var(--color-option);
+  --color-border: var(--color-line);
+  --color-border-strong: var(--color-input-border);
+  --color-text-primary: var(--color-graphite);
+  --color-text-secondary: var(--color-graphite-2);
+  --color-text-muted: var(--color-graphite-3);
+  --color-text-on-accent: var(--color-on-dark);
+  --color-interactive: var(--color-pencil-blue);
+  --color-interactive-hover: var(--color-graphite);
+  --color-interactive-subtle: var(--color-blue-wash);
+  --color-focus-ring: var(--color-pencil-blue);
+  --color-status-success-bg: var(--color-blue-wash);
+  --color-status-success-text: var(--color-pencil-blue);
+  --color-status-success-border: var(--color-pencil-blue);
+  --color-status-caution-bg: var(--color-option);
+  --color-status-caution-text: var(--color-ochre);
+  --color-status-caution-border: var(--color-ochre);
+  --color-status-danger-bg: var(--color-red-wash);
+  --color-status-danger-text: var(--color-pencil-red);
+  --color-status-danger-border: var(--color-pencil-red);
+  --color-status-info-bg: var(--color-blue-wash);
+  --color-status-info-text: var(--color-pencil-blue);
+  --color-status-info-border: var(--color-pencil-blue);
+  --color-status-neutral-bg: var(--color-option);
+  --color-status-neutral-text: var(--color-graphite-2);
+  --color-status-neutral-border: var(--color-line);
+  --font-family-base: var(--font-ui);
+  --font-family-mono: var(--font-doc);
+  --font-size-xs: var(--text-xs);
+  --font-size-sm: var(--text-sm);
+  --font-size-base: var(--text-base);
+  --font-size-md: var(--text-md);
+  --font-size-lg: var(--text-xl);
+  --font-size-xl: var(--text-2xl);
+  --font-size-2xl: var(--text-3xl);
+  --font-weight-regular: var(--weight-regular);
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-semibold: var(--weight-semibold);
+  --font-weight-bold: var(--weight-bold);
+  --line-height-tight: var(--leading-snug);
+  --line-height-base: var(--leading-base);
+  --line-height-relaxed: var(--leading-relaxed);
+  --radius-sm: var(--radius-code);
+  --radius-md: var(--radius-option);
+  --radius-lg: var(--radius-panel);
+  --radius-full: 999px;
+  --border-width-thin: var(--border-thin);
+  --border-width-thick: var(--border-thick);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: var(--shadow-dialog);
+  --duration-slow: var(--duration-drawer);
   --z-toast: 200;
 }

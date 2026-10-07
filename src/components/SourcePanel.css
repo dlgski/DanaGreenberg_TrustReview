@@ -1,0 +1,184 @@
+.source-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--color-ledger);
+  border-radius: var(--radius-panel);
+}
+
+.source-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2-5);
+  padding: var(--space-4) var(--space-5) var(--space-1-5);
+}
+
+.source-panel__title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.source-panel__meta {
+  font-size: var(--text-xs);
+  color: var(--color-ledger-text);
+}
+
+.source-panel__close {
+  display: none;
+  background: var(--color-card);
+}
+
+.source-panel__status {
+  margin: 0 var(--space-5);
+  padding: var(--space-1) 0 var(--space-2-5);
+  border-bottom: var(--border-thin) solid var(--color-ledger-line);
+  font-size: var(--text-xs);
+  color: var(--color-ledger-text);
+}
+
+.source-panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 var(--space-5) var(--space-6) var(--space-2);
+}
+
+.source-panel__page {
+  padding-top: var(--space-3-5);
+}
+
+.source-panel__page-title {
+  margin: 0 0 var(--space-1-5) calc(var(--code-column) + var(--space-1));
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ledger-text);
+}
+
+.source-line {
+  display: grid;
+  grid-template-columns: var(--code-column) minmax(0, 1fr);
+  gap: var(--space-1);
+  font-family: var(--font-doc);
+  font-size: var(--text-sm);
+  line-height: var(--leading-doc);
+  color: var(--color-ledger-text);
+}
+
+.source-line__code {
+  padding-right: var(--space-1-5);
+  text-align: right;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-ledger-code);
+}
+
+.source-line__text {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-code);
+  background: none;
+  color: inherit;
+  white-space: pre-wrap;
+}
+
+.source-line__label,
+.source-line__note {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  white-space: normal;
+}
+
+.source-line__label {
+  color: var(--color-pencil-blue);
+}
+
+.source-line__note {
+  color: var(--color-pencil-red);
+}
+
+.source-line--mismatch .source-line__code {
+  color: var(--color-pencil-red);
+}
+
+.source-line--mismatch .source-line__text {
+  font-weight: var(--weight-bold);
+  color: var(--color-graphite);
+}
+
+.source-line--highlight .source-line__text {
+  padding: var(--space-1) var(--space-2-5);
+  background: var(--color-card);
+  font-weight: var(--weight-bold);
+  color: var(--color-graphite);
+}
+
+.source-line--blue .source-line__code {
+  color: var(--color-pencil-blue);
+}
+
+.source-line--blue .source-line__text {
+  box-shadow: inset var(--bar-width) 0 0 var(--color-pencil-blue);
+}
+
+.source-line--red .source-line__text {
+  box-shadow: inset var(--bar-width) 0 0 var(--color-pencil-red);
+}
+
+.source-panel__scrim {
+  display: none;
+}
+
+/* Media queries can't read custom properties. 1000px matches NARROW_LAYOUT_QUERY. */
+@media (max-width: 1000px) {
+  .source-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-drawer);
+    width: var(--drawer-width);
+    border-radius: var(--radius-panel) 0 0 var(--radius-panel);
+    box-shadow: var(--shadow-drawer);
+    transform: translateX(105%);
+    visibility: hidden;
+    transition:
+      transform var(--duration-drawer) var(--easing-drawer),
+      visibility 0s var(--duration-drawer);
+  }
+
+  .source-panel--open {
+    transform: none;
+    visibility: visible;
+    transition: transform var(--duration-drawer) var(--easing-drawer);
+  }
+
+  .source-panel__close {
+    display: inline-flex;
+  }
+
+  .source-panel__scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-scrim);
+    background: var(--color-scrim);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-base) var(--easing-standard);
+  }
+
+  .source-panel__scrim--open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .source-panel,
+  .source-panel--open,
+  .source-panel__scrim {
+    transition: none;
+  }
+}

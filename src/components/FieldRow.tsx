@@ -96,6 +96,7 @@ export function FieldRow({
   const isLowConfidence =
     !hasCandidates && !isMissing && field.confidence !== null && field.confidence < LOW_CONFIDENCE_THRESHOLD;
   const isProse = !field.unit && !isMissing && field.value.length > PROSE_LENGTH_THRESHOLD;
+  const isEdited = review.decision === 'edited';
   // A calculated field follows its inputs unless the analyst typed its value in themselves.
   const followsInputs = isDerived && review.decision !== 'edited' && recalculation !== undefined;
   const recalculated = followsInputs && recalculation.kind === 'value' && recalculation.changed;
@@ -244,13 +245,20 @@ export function FieldRow({
             <span className="field-row__no-source">No source line</span>
           )}
           <div className="field-row__actions">
+            {/* Saving an edit is already the decision. Confirm here would silently drop the
+                correction, so going back to the model's number is its own explicit action. */}
+            {isEdited && canConfirm ? (
+              <Button variant="text" onClick={onConfirm}>
+                {isDerived ? 'Use calculated value' : 'Use model value'}
+              </Button>
+            ) : null}
             <Button variant="text" onClick={onReject} disabled={review.decision === 'rejected'}>
               Reject
             </Button>
             <Button variant="quiet" onClick={() => setDialogOpen(true)}>
               {editLabel}
             </Button>
-            {canConfirm ? (
+            {canConfirm && !isEdited ? (
               <Button variant="primary" onClick={onConfirm} disabled={review.decision === 'confirmed'}>
                 Confirm
               </Button>

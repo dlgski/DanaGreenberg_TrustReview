@@ -161,7 +161,7 @@ describe('findLabelMismatch', () => {
   });
 
   it('skips a calculated field', () => {
-    const derived = { formula: 'a / b', inputLabels: ['A', 'B'] };
+    const derived = { formula: 'a / b', inputIds: ['a', 'b'], inputLabels: ['A', 'B'] };
     expect(findLabelMismatch(field({ derived }), INCOME_PAGES)).toBeNull();
   });
 

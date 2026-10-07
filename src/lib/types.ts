@@ -6,6 +6,8 @@ export interface ExtractionCandidate {
 
 export interface DerivedInfo {
   formula: string;
+  /** Field ids the formula reads, in formula order. */
+  inputIds: string[];
   inputLabels: string[];
 }
 

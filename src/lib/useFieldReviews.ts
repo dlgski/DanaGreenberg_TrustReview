@@ -47,10 +47,20 @@ export function useFieldReviews(resetKey: unknown) {
     [],
   );
 
+  /** Sends a field back to "not reviewed", e.g. when a calculated field's inputs change. */
+  const reset = useCallback((fieldId: string) => {
+    setReviews((prev) => {
+      if (!(fieldId in prev)) return prev;
+      const next = { ...prev };
+      delete next[fieldId];
+      return next;
+    });
+  }, []);
+
   const getDecision = useCallback(
     (fieldId: string): FieldReviewState => reviews[fieldId] ?? { decision: 'pending' },
     [reviews],
   );
 
-  return { reviews, confirm, reject, edit, resolveCandidate, getDecision };
+  return { reviews, confirm, reject, edit, resolveCandidate, reset, getDecision };
 }

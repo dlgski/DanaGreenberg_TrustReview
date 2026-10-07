@@ -56,6 +56,7 @@ function normalizeDerived(d: RawDerived | undefined, labelByKey: Map<string, str
   if (!d) return undefined;
   return {
     formula: d.formula,
+    inputIds: d.inputs,
     inputLabels: d.inputs.map((key) => labelByKey.get(key) ?? key),
   };
 }

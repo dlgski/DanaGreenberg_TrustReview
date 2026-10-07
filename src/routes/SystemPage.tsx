@@ -5,7 +5,8 @@ import { DocumentHeader } from '../components/DocumentHeader';
 import { EditFieldDialog } from '../components/EditFieldDialog';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorBanner } from '../components/ErrorBanner';
-import { FieldRow } from '../components/FieldRow';
+import { FieldRow, type DerivedInput } from '../components/FieldRow';
+import type { Recalculation } from '../lib/derived';
 import { FieldSkeleton } from '../components/FieldSkeleton';
 import { Flag } from '../components/Flag';
 import { ProgressIndicator } from '../components/ProgressIndicator';
@@ -66,6 +67,23 @@ function sampleField(overrides: Partial<ExtractionField> = {}): ExtractionField 
   };
 }
 
+const DSCR_DERIVED = {
+  formula: 'ebitda / annual_debt_service',
+  inputIds: ['ebitda', 'annual_debt_service'],
+  inputLabels: ['EBITDA', 'Annual debt service'],
+};
+
+const DSCR_FIELD = sampleField({
+  id: 'derived-recalculated',
+  label: 'Debt service coverage ratio',
+  value: '1.42',
+  unit: undefined,
+  sourceQuote: null,
+  page: undefined,
+  confidence: 0.9,
+  derived: DSCR_DERIVED,
+});
+
 const CONFLICT_FIELD = sampleField({
   id: 'total_debt',
   label: 'Total debt',
@@ -81,11 +99,15 @@ function FieldRowDemo({
   initialReview,
   citations = [],
   mismatch = null,
+  derivedInputs,
+  recalculation,
 }: {
   field: ExtractionField;
   initialReview: FieldReviewState;
   citations?: SourceCitation[];
   mismatch?: LabelMismatch | null;
+  derivedInputs?: DerivedInput[];
+  recalculation?: Recalculation;
 }) {
   const [review, setReview] = useState<FieldReviewState>(initialReview);
   const [showing, setShowing] = useState(false);
@@ -95,6 +117,8 @@ function FieldRowDemo({
       review={review}
       citations={citations}
       mismatch={mismatch}
+      derivedInputs={derivedInputs}
+      recalculation={recalculation}
       figuresInThousands
       isShowingSource={showing}
       onShowSource={() => setShowing((s) => !s)}
@@ -247,6 +271,8 @@ export function SystemPage() {
           <Flag tone="caution" icon="split">Two possible values</Flag>
           <Flag tone="caution" icon="warning">Not found</Flag>
           <Flag tone="info" icon="calculator">Calculated, not read from the document</Flag>
+          <Flag tone="caution" icon="calculator">Recalculated from your changes</Flag>
+          <Flag tone="danger" icon="warning">Can't calculate</Flag>
           <Flag tone="caution" icon="warning">Model was unsure</Flag>
         </div>
       </section>
@@ -367,9 +393,29 @@ export function SystemPage() {
                 sourceQuote: null,
                 page: undefined,
                 confidence: 0.9,
-                derived: { formula: 'ebitda / annual_debt_service', inputLabels: ['EBITDA', 'Annual debt service'] },
+                derived: DSCR_DERIVED,
               })}
               initialReview={{ decision: 'pending' }}
+            />
+          </div>
+          <div>
+            <p className="state-label">Calculated, recalculated after the analyst edited EBITDA to 5,914</p>
+            <FieldRowDemo
+              field={DSCR_FIELD}
+              initialReview={{ decision: 'pending' }}
+              derivedInputs={[
+                { label: 'EBITDA', value: '5,914' },
+                { label: 'Annual debt service', value: '4,310' },
+              ]}
+              recalculation={{ kind: 'value', value: '1.37', changed: true }}
+            />
+          </div>
+          <div>
+            <p className="state-label">Calculated, but an input was rejected</p>
+            <FieldRowDemo
+              field={{ ...DSCR_FIELD, id: 'derived-blocked' }}
+              initialReview={{ decision: 'pending' }}
+              recalculation={{ kind: 'blocked', reason: "Can't calculate: Annual debt service was rejected." }}
             />
           </div>
           <div>

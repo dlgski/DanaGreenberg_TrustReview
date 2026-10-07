@@ -10,6 +10,7 @@ import {
   type StreamScenario,
 } from '../lib/streamExtraction';
 import { assignReferenceCodes, findAllMismatches } from '../lib/sourceMatch';
+import { recalculate, type Recalculation } from '../lib/derived';
 import { useExtractionStream } from '../lib/useExtractionStream';
 import { useFieldReviews } from '../lib/useFieldReviews';
 import { NARROW_LAYOUT_QUERY, useMediaQuery } from '../lib/useMediaQuery';
@@ -48,16 +49,42 @@ function derivedInputsFor(
   getDecision: (id: string) => FieldReviewState,
 ): DerivedInput[] | undefined {
   if (!field.derived) return undefined;
-  return field.derived.inputLabels.map((label) => {
-    const input = fields.find((f) => f.label === label);
-    return { label, value: input ? effectiveValue(fields, getDecision, input.id) || null : null };
-  });
+  return field.derived.inputIds.map((id, i) => ({
+    label: field.derived!.inputLabels[i] ?? id,
+    value: fields.some((f) => f.id === id) ? effectiveValue(fields, getDecision, id) || null : null,
+  }));
+}
+
+/** Recalculates a calculated field from its inputs as the analyst currently has them. */
+function recalculationFor(
+  field: ExtractionField,
+  fields: ExtractionField[],
+  getDecision: (id: string) => FieldReviewState,
+): Recalculation | undefined {
+  if (!field.derived) return undefined;
+  const operands = field.derived.inputIds.flatMap((id, i) =>
+    fields.some((f) => f.id === id)
+      ? [
+          {
+            id,
+            label: field.derived!.inputLabels[i] ?? id,
+            value: effectiveValue(fields, getDecision, id),
+            rejected: getDecision(id).decision === 'rejected',
+          },
+        ]
+      : [],
+  );
+  return recalculate(field.derived.formula, operands, field.value, FIELD_LABELS);
+}
+
+function recalculationKey(result: Recalculation): string {
+  return result.kind === 'value' ? result.value : `blocked:${result.reason}`;
 }
 
 export function ReviewPage() {
   const [scenario, setScenario] = useState<StreamScenario>(readScenarioFromUrl);
   const { status, fields, errorMessage, begin, retry, attempt } = useExtractionStream(scenario);
-  const { confirm, reject, edit, resolveCandidate, getDecision } = useFieldReviews(attempt);
+  const { confirm, reject, edit, resolveCandidate, reset, getDecision } = useFieldReviews(attempt);
   const [approved, setApproved] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const [activeSourceFieldId, setActiveSourceFieldId] = useState<string | null>(null);
@@ -65,12 +92,14 @@ export function ReviewPage() {
   const drawerOpenerRef = useRef<HTMLElement | null>(null);
   const restoreFocusRef = useRef(false);
   const isNarrow = useMediaQuery(NARROW_LAYOUT_QUERY);
+  const lastRecalculationRef = useRef<Record<string, string>>({});
 
   // A new attempt starts a fresh review: nothing approved, nothing shown in the source.
   useEffect(() => {
     setApproved(false);
     setActiveSourceFieldId(null);
     setDrawerOpen(false);
+    lastRecalculationRef.current = {};
   }, [attempt]);
 
   useEffect(() => {
@@ -100,6 +129,31 @@ export function ReviewPage() {
     () => fields.filter((f) => getDecision(f.id).decision !== 'pending').length,
     [fields, getDecision],
   );
+  const recalculations = useMemo(() => {
+    const results: Record<string, Recalculation> = {};
+    for (const field of fields) {
+      const result = recalculationFor(field, fields, getDecision);
+      if (result) results[field.id] = result;
+    }
+    return results;
+  }, [fields, getDecision]);
+
+  // A decision on a calculated field was made against its old inputs. If they change,
+  // that decision no longer covers the number going into the memo, so it needs review again.
+  useEffect(() => {
+    for (const [fieldId, result] of Object.entries(recalculations)) {
+      const key = recalculationKey(result);
+      const previous = lastRecalculationRef.current[fieldId];
+      lastRecalculationRef.current[fieldId] = key;
+      if (previous === undefined || previous === key) continue;
+      const decision = getDecision(fieldId).decision;
+      if (decision === 'confirmed' || decision === 'edited') {
+        reset(fieldId);
+        setAnnouncement(`${FIELD_LABELS[fieldId]} needs review again because its inputs changed.`);
+      }
+    }
+  }, [recalculations, getDecision, reset]);
+
   const receivedFieldIds = useMemo(() => new Set(fields.map((f) => f.id)), [fields]);
 
   const canApprove =
@@ -185,6 +239,7 @@ export function ReviewPage() {
                   citations={REFERENCES.byField[field.id] ?? []}
                   mismatch={MISMATCHES[field.id] ?? null}
                   derivedInputs={derivedInputsFor(field, fields, getDecision)}
+                  recalculation={recalculations[field.id]}
                   figuresInThousands={figuresInThousands}
                   isShowingSource={activeSourceFieldId === field.id}
                   onShowSource={(opener) => handleShowSource(field.id, opener)}

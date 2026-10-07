@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ExtractionField, FieldReviewState } from '../lib/types';
 import { isUngrounded, type LabelMismatch, type SourceCitation } from '../lib/sourceMatch';
+import type { Recalculation } from '../lib/derived';
 import { Button } from './Button';
 import { ConflictResolver } from './ConflictResolver';
 import { EditFieldDialog } from './EditFieldDialog';
@@ -27,6 +28,8 @@ interface FieldRowProps {
   mismatch: LabelMismatch | null;
   /** Current values of a calculated field's inputs, in formula order. */
   derivedInputs?: DerivedInput[];
+  /** A calculated field's value recomputed from its inputs as the analyst has them. */
+  recalculation?: Recalculation;
   figuresInThousands: boolean;
   isShowingSource: boolean;
   /** Receives the clicked button so the page can return focus to it. */
@@ -43,13 +46,26 @@ interface RiskFlagProps {
   hasCandidates: boolean;
   isMissing: boolean;
   isDerived: boolean;
+  recalculated: boolean;
+  blocked: boolean;
   isLowConfidence: boolean;
 }
 
 /** At most one flag per field, most serious first. */
-function RiskFlag({ mismatch, ungrounded, hasCandidates, isMissing, isDerived, isLowConfidence }: RiskFlagProps) {
+function RiskFlag({
+  mismatch,
+  ungrounded,
+  hasCandidates,
+  isMissing,
+  isDerived,
+  recalculated,
+  blocked,
+  isLowConfidence,
+}: RiskFlagProps) {
   if (mismatch) return <Flag tone="danger" icon="warning">Doesn't match the document</Flag>;
   if (ungrounded) return <Flag tone="danger" icon="warning">No source cited</Flag>;
+  if (blocked) return <Flag tone="danger" icon="warning">Can't calculate</Flag>;
+  if (recalculated) return <Flag tone="caution" icon="calculator">Recalculated from your changes</Flag>;
   if (hasCandidates) return <Flag tone="caution" icon="split">Two possible values</Flag>;
   if (isMissing) return <Flag tone="caution" icon="warning">Not found</Flag>;
   if (isDerived) return <Flag tone="info" icon="calculator">Calculated, not read from the document</Flag>;
@@ -63,6 +79,7 @@ export function FieldRow({
   citations,
   mismatch,
   derivedInputs,
+  recalculation,
   figuresInThousands,
   isShowingSource,
   onShowSource,
@@ -79,12 +96,21 @@ export function FieldRow({
   const isLowConfidence =
     !hasCandidates && !isMissing && field.confidence !== null && field.confidence < LOW_CONFIDENCE_THRESHOLD;
   const isProse = !field.unit && !isMissing && field.value.length > PROSE_LENGTH_THRESHOLD;
+  // A calculated field follows its inputs unless the analyst typed its value in themselves.
+  const followsInputs = isDerived && review.decision !== 'edited' && recalculation !== undefined;
+  const recalculated = followsInputs && recalculation.kind === 'value' && recalculation.changed;
+  const blockedReason = followsInputs && recalculation.kind === 'blocked' ? recalculation.reason : null;
   // Nothing to verify a value against means Confirm can't honestly mean "I checked this."
-  const canConfirm = !hasCandidates && !isMissing && !ungrounded;
+  const canConfirm = !hasCandidates && !isMissing && !ungrounded && blockedReason === null;
 
-  const displayValue = review.decision === 'edited' ? (review.editedValue ?? '') : field.value;
+  const displayValue =
+    review.decision === 'edited'
+      ? (review.editedValue ?? '')
+      : recalculated && recalculation.kind === 'value'
+        ? recalculation.value
+        : field.value;
   const showsEmpty = isMissing && review.decision !== 'edited';
-  const isFigure = !showsEmpty && !isProse && displayValue.length <= FIGURE_LENGTH_THRESHOLD;
+  const isFigure = !showsEmpty && blockedReason === null && !isProse && displayValue.length <= FIGURE_LENGTH_THRESHOLD;
   const unitLabel = field.unit === 'USD' && figuresInThousands ? 'USD thousands' : field.unit;
 
   const codes = citations.map((c) => c.code).filter((c): c is string => c !== null);
@@ -130,12 +156,19 @@ export function FieldRow({
         </div>
 
         {showsEmpty ? <p className="field-row__empty">The model found no value for this field.</p> : null}
-        {!showsEmpty && !isFigure ? (
+        {blockedReason ? <p className="field-row__empty">{blockedReason}</p> : null}
+        {!showsEmpty && blockedReason === null && !isFigure ? (
           <p className={isProse ? 'field-row__prose' : 'field-row__text'}>{displayValue}</p>
         ) : null}
         {review.decision === 'edited' ? (
           <p className="field-row__original">
             Model extracted: {field.value || '(empty)'}
+            {unitLabel ? ` ${unitLabel}` : ''}
+          </p>
+        ) : null}
+        {recalculated || blockedReason ? (
+          <p className="field-row__original">
+            Model calculated: {field.value}
             {unitLabel ? ` ${unitLabel}` : ''}
           </p>
         ) : null}
@@ -146,6 +179,8 @@ export function FieldRow({
           hasCandidates={hasCandidates}
           isMissing={isMissing}
           isDerived={isDerived}
+          recalculated={recalculated}
+          blocked={blockedReason !== null}
           isLowConfidence={isLowConfidence}
         />
 
@@ -154,7 +189,8 @@ export function FieldRow({
             <strong>{dividedInputs[0].label}</strong>
             {dividedInputs[0].value ? ` ${dividedInputs[0].value}` : ''} divided by{' '}
             <strong>{dividedInputs[1].label}</strong>
-            {dividedInputs[1].value ? ` ${dividedInputs[1].value}` : ''}. Confirm the math and both inputs.
+            {dividedInputs[1].value ? ` ${dividedInputs[1].value}` : ''}.
+            {blockedReason === null ? ' Confirm the math and both inputs.' : null}
           </p>
         ) : isDerived ? (
           <p className="field-row__derived">
@@ -166,7 +202,7 @@ export function FieldRow({
                 {i < inputs.length - 1 ? ' and ' : ''}
               </span>
             ))}
-            . Confirm the math and {inputs.length === 2 ? 'both inputs' : 'its inputs'}.
+            .{blockedReason === null ? ` Confirm the math and ${inputs.length === 2 ? 'both inputs' : 'its inputs'}.` : null}
           </p>
         ) : null}
 

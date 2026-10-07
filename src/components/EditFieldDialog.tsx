@@ -74,7 +74,7 @@ export function EditFieldDialog({
           onChange={(e) => setValue(e.target.value)}
         />
         <div className="edit-field-dialog__actions">
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="quiet" onClick={onClose}>
             Cancel
           </Button>
           <Button type="submit" variant="primary">

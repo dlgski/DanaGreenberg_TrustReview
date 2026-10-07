@@ -4,16 +4,17 @@
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-10);
-  border: var(--border-width-thin) dashed var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  border-radius: var(--radius-region);
+  background: var(--color-region);
 }
 
 .empty-state__title {
-  font-size: var(--font-size-lg);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: var(--tracking-tight);
 }
 
 .empty-state__description {
-  color: var(--color-text-secondary);
   max-width: 48ch;
+  color: var(--color-graphite-2);
 }

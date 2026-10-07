@@ -160,13 +160,6 @@ export function SystemPage() {
     ],
   });
 
-  const demoProvenance = {
-    filename: 'Halvorsen_FY2025_Financials.pdf',
-    pageCount: 6,
-    model: 'extractor-v4',
-    completedAt: '2026-09-14T15:42:08Z',
-  };
-
   return (
     <div className="system-page">
       <div>
@@ -497,29 +490,25 @@ export function SystemPage() {
             <DocumentHeader
               borrowerName="Halvorsen Marine Supply, LLC"
               periodEnd="2025-06-30"
-              provenance={demoProvenance}
-              figuresInThousands={true}
+              figuresInThousands
               status="streaming"
-              receivedCount={4}
-              totalCount={9}
-              decidedCount={0}
+              totalCount={10}
+              decisions={['pending', 'pending', 'pending', 'pending']}
               canApprove={false}
               approved={false}
               onApprove={() => {}}
             />
           </div>
           <div>
-            <p className="state-label">Complete, fully reviewed, ready to approve</p>
+            <p className="state-label">Complete, partly reviewed</p>
             <DocumentHeader
               borrowerName="Halvorsen Marine Supply, LLC"
               periodEnd="2025-06-30"
-              provenance={demoProvenance}
-              figuresInThousands={true}
+              figuresInThousands
               status="complete"
-              receivedCount={9}
-              totalCount={9}
-              decidedCount={9}
-              canApprove={true}
+              totalCount={10}
+              decisions={['rejected', 'confirmed', 'confirmed', 'edited', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending']}
+              canApprove={false}
               approved={false}
               onApprove={() => {}}
             />
@@ -529,14 +518,12 @@ export function SystemPage() {
             <DocumentHeader
               borrowerName="Halvorsen Marine Supply, LLC"
               periodEnd="2025-06-30"
-              provenance={demoProvenance}
-              figuresInThousands={true}
+              figuresInThousands
               status="complete"
-              receivedCount={9}
-              totalCount={9}
-              decidedCount={9}
-              canApprove={true}
-              approved={true}
+              totalCount={10}
+              decisions={['confirmed', 'confirmed', 'confirmed', 'confirmed', 'edited', 'edited', 'confirmed', 'confirmed', 'rejected', 'confirmed']}
+              canApprove
+              approved
               onApprove={() => {}}
             />
           </div>

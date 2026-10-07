@@ -156,12 +156,10 @@ export function ReviewPage() {
             <DocumentHeader
               borrowerName={borrowerName}
               periodEnd={periodEnd}
-              provenance={provenance}
               figuresInThousands={figuresInThousands}
               status={status}
-              receivedCount={fields.length}
               totalCount={TOTAL_FIELD_COUNT}
-              decidedCount={decidedCount}
+              decisions={fields.map((f) => getDecision(f.id).decision)}
               canApprove={canApprove}
               approved={approved}
               onApprove={() => setApproved(true)}

@@ -1,46 +1,85 @@
 .document-header {
   display: flex;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-6);
-  padding: var(--space-6);
-  background: var(--color-surface);
-  border: var(--border-width-thin) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  flex-wrap: wrap;
-}
-
-.document-header__meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 260px;
-  flex: 1;
+  padding: var(--space-4-5) var(--space-1);
 }
 
 .document-header__name {
-  font-size: var(--font-size-xl);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-heavy);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
 }
 
-.document-header__period {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+.document-header__meta {
+  margin-top: var(--space-1);
+  font-size: var(--text-base);
+  color: var(--color-graphite-2);
 }
 
-.document-header__provenance {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+.document-header__meta strong {
+  font-weight: var(--weight-semibold);
+  color: var(--color-graphite);
 }
 
-.document-header__note {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  max-width: 60ch;
+.document-header__signoff {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4-5);
 }
 
 .document-header__status {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-1-5);
+}
+
+.document-header__count {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.document-header__ticks {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 220px;
+  gap: var(--space-1);
+}
+
+.document-header__tick {
+  display: grid;
+  place-items: center;
+  width: var(--size-tick-box);
+  height: var(--size-tick-box);
+  border-radius: var(--radius-code);
+  background: var(--color-card);
+}
+
+.document-header__tick--waiting {
+  background: transparent;
+  border: var(--border-thin) dashed var(--color-graphite-3);
+}
+
+.document-header__reason {
+  font-size: var(--text-xs);
+  color: var(--color-graphite-2);
+}
+
+/* Media queries can't read custom properties. 1000px matches NARROW_LAYOUT_QUERY. */
+@media (max-width: 1000px) {
+  .document-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .document-header__signoff {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .document-header__status {
+    justify-items: start;
+  }
 }

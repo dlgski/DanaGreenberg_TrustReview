@@ -63,6 +63,7 @@ export function ReviewPage() {
   const [activeSourceFieldId, setActiveSourceFieldId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerOpenerRef = useRef<HTMLElement | null>(null);
+  const restoreFocusRef = useRef(false);
   const isNarrow = useMediaQuery(NARROW_LAYOUT_QUERY);
 
   // A new attempt starts a fresh review: nothing approved, nothing shown in the source.
@@ -73,8 +74,17 @@ export function ReviewPage() {
   }, [attempt]);
 
   useEffect(() => {
-    if (!isNarrow) setDrawerOpen(false);
-  }, [isNarrow]);
+    if (isNarrow || !drawerOpen) return;
+    restoreFocusRef.current = true;
+    setDrawerOpen(false);
+  }, [isNarrow, drawerOpen]);
+
+  // Runs after the drawer has closed and the fields are no longer inert.
+  useEffect(() => {
+    if (drawerOpen || !restoreFocusRef.current) return;
+    restoreFocusRef.current = false;
+    drawerOpenerRef.current?.focus();
+  }, [drawerOpen]);
 
   useEffect(() => {
     if (status === 'streaming') {
@@ -105,10 +115,11 @@ export function ReviewPage() {
     window.history.replaceState(null, '', url);
   }
 
-  function handleShowSource(fieldId: string) {
+  function handleShowSource(fieldId: string, opener: HTMLElement) {
     if (isNarrow) {
       // In drawer mode the reference always opens the drawer; Close returns focus here.
-      drawerOpenerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      // Safari and Firefox on macOS don't focus a clicked button, so use the element itself.
+      drawerOpenerRef.current = opener;
       setActiveSourceFieldId(fieldId);
       setDrawerOpen(true);
       return;
@@ -178,7 +189,7 @@ export function ReviewPage() {
                   derivedInputs={derivedInputsFor(field, fields, getDecision)}
                   figuresInThousands={figuresInThousands}
                   isShowingSource={activeSourceFieldId === field.id}
-                  onShowSource={() => handleShowSource(field.id)}
+                  onShowSource={(opener) => handleShowSource(field.id, opener)}
                   onConfirm={() => confirm(field.id)}
                   onReject={() => reject(field.id)}
                   onEdit={(value) => edit(field.id, value)}

@@ -29,7 +29,8 @@ interface FieldRowProps {
   derivedInputs?: DerivedInput[];
   figuresInThousands: boolean;
   isShowingSource: boolean;
-  onShowSource: () => void;
+  /** Receives the clicked button so the page can return focus to it. */
+  onShowSource: (opener: HTMLElement) => void;
   onConfirm: () => void;
   onReject: () => void;
   onEdit: (value: string) => void;
@@ -190,7 +191,7 @@ export function FieldRow({
               label={referenceLabel}
               tone={mismatch ? 'red' : 'blue'}
               pressed={isShowingSource}
-              onClick={onShowSource}
+              onClick={(event) => onShowSource(event.currentTarget)}
             />
           ) : (
             <span className="field-row__no-source">No source line</span>

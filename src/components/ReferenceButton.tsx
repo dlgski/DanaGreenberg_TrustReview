@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import './ReferenceButton.css';
 
 interface ReferenceButtonProps {
@@ -5,7 +6,7 @@ interface ReferenceButtonProps {
   label: string;
   pressed: boolean;
   tone?: 'blue' | 'red';
-  onClick: () => void;
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
 /** A field's workpaper reference. Its accessible name includes the code, e.g. "3a Show in source". */

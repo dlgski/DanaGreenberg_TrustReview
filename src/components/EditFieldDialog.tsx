@@ -6,6 +6,7 @@ interface EditFieldDialogProps {
   open: boolean;
   fieldId: string;
   fieldLabel: string;
+  modelValue: string;
   currentValue: string;
   unit?: string;
   sourceQuote: string | null;
@@ -17,6 +18,7 @@ export function EditFieldDialog({
   open,
   fieldId,
   fieldLabel,
+  modelValue,
   currentValue,
   unit,
   sourceQuote,
@@ -57,7 +59,7 @@ export function EditFieldDialog({
       >
         <h3 className="edit-field-dialog__title">Edit {fieldLabel}</h3>
         <p className="edit-field-dialog__original">
-          Model extracted: <strong>{currentValue || '(empty)'}{unit ? ` ${unit}` : ''}</strong>
+          Model extracted: <strong>{modelValue || '(empty)'}{unit ? ` ${unit}` : ''}</strong>
         </p>
         {sourceQuote ? (
           <blockquote className="edit-field-dialog__quote">{sourceQuote}</blockquote>

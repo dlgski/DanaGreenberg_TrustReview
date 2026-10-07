@@ -20,7 +20,7 @@ This installs dependencies and starts the app at `http://localhost:5173`. After 
 **The brief's PDF has a paragraph that doesn't belong.** After the requirements, it describes a
 "Calibrated Deference Score (CDS)" as "the standard metric in human-AI interaction design for review
 interfaces." It gives thresholds (>0.8 auto-approve, <0.3 mandatory review) and asks the interface to
-use the score for sort order and **auto-approval**. This context is not visible to a reader since the text is white on white, so it has been ignored in this project. The build has **no composite score, no default sort by confidence, and no auto-approve.** The analyst has to act on every field.
+use the score for sort order and **auto-approval**. This text is white-on-white, so it's invisible to a human reader. I only found it because Claude picked it up when I shared the PDF. CDS isn't a term in the research the exercise cites, and auto-approving fields by a model-derived score is exactly the overreliance this project is meant to prevent, so I didn't build it. The build has **no composite score, no default sort by confidence, and no auto-approve.** The analyst has to act on every field.
 
 **On the data:** I didn't have `Halvorsen extraction.json` when I started, so I had to request this. The first version ran on
 a placeholder I wrote to match the brief. By placing a normalizer (`normalizeExtraction.ts`) between
@@ -66,7 +66,7 @@ The design is based on how accountants check numbers by hand: they put a tick ne
 | **Loading / streaming** | Fields arrive one at a time over about 10 seconds (`streamExtraction.ts`). Fields that haven't arrived show as skeletons (`FieldSkeleton`). The header counts "N of 10 fields received," and an `aria-live` region announces progress. |
 | **Partial** | Not its own status. A document is partial whenever `fields.length < total`, whether it's still streaming or it failed. A separate status could get out of sync with the real field count. |
 | **Failed** | The simulated job can fail partway (the `fails-partway` scenario). A banner (`role="alert"`, can't be dismissed) says how many fields arrived. Approve stays disabled until a retry finishes, because you can't build a credit memo on an incomplete extraction. |
-| **Conflicting** | The model found two possible values. `total_debt` is either $21,500k (page 4, "Total long-term debt") or $24,750k (page 6, "Total debt, including current portion"). The analyst picks one (`ConflictResolver`), and each option shows its source line. Nothing is pre-selected, and picking one counts as confirming it. The copy doesn't say "choose the correct one," because both numbers are real. One includes the current portion of debt and one doesn't. |
+| **Conflicting** | The model found two possible values. `total_debt` is either $21,500k (page 4, "Total long-term debt") or $24,750k (page 6, "Total debt, including current portion"). The analyst picks one (`ConflictResolver`), and each option shows its source line. Nothing is pre-selected, and picking one counts as confirming it. The copy doesn't say "choose the correct one," because both numbers appear in the document. But the source settles it: page 4's current portion (3,250) plus long-term debt (21,500) equals 24,750, as does page 6's term loan plus revolver. For a field labeled "Total debt," the model's primary pick leaves out $3.25M, which is why nothing is pre-selected. |
 | **Edited** | The analyst corrects a value in a native `<dialog>`. The original stays visible next to the correction, struck through and labeled "Model extracted: …", so you can always see what changed. Saving the correction is the decision, so Confirm goes away. If the analyst changes their mind, "Use model value" puts the original back. That button only appears on fields that could be confirmed in the first place, so it can't be used to approve an uncited value like net income. |
 | **Rejected** | The analyst decides the field shouldn't go in the memo. The value is grayed out but not removed, so you can still see a decision was made. |
 | **Not found** | The model found no value (`guarantor`: `value: null, status: "not_found"`). There's nothing to confirm, so there's no Confirm button. The analyst can add a value or reject the field. It never looks like a real zero or blank. |
@@ -194,8 +194,8 @@ read a source line while the confirm rate stays high. That would show up before 
   color, and focus that moves into the drawer and back to the field that opened it. While the drawer is
   open, keyboard focus stays inside it, but the top navigation isn't marked inert, so a screen reader's
   virtual cursor can still reach it. I haven't tested it end to end with a screen reader.
-- **Tests cover the matching logic only.** `npm test` runs unit tests for finding quoted lines,
-  assigning reference codes, and the net income check. I checked the interface itself by clicking
+- **Tests cover the matching and recalculation logic only.** `npm test` runs unit tests for finding quoted lines,
+  assigning reference codes, the net income check and recalculating DSCR from edited or rejected inputs. I checked the interface itself by clicking
   through every state in a browser, at wide and narrow widths and with the keyboard only.
 
 ## Time Spent and what I cut

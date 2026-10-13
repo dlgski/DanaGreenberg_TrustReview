@@ -211,6 +211,9 @@ To stay in scope I cut:
 * Keeping decisions across a retry. A retry restarts the review instead of preserving unchanged fields.
 
 ## What I'd do with another week
+I hate over-engineered code, and I believe when I enhanced this project to have the side-by-side source with a slider drawer, it became a bit much.  With more time I would clean it up a bit, slim down the code and consider what features were added here that were more than necessary to trim out.
+
+For future feature checks:
 1. Build the audit-sample workflow and the event logging above, not just describe them. The
    `net_income` case is what they're meant to catch.
 2. Add a per-field history in the UI (who changed what, and when).
